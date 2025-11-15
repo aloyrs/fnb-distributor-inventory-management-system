@@ -66,7 +66,6 @@ const Suppliers = () => {
             </option>
           ))}
         </select>
-        <button type="submit">Apply Filters</button>
       </form>
 
       {loading ? (

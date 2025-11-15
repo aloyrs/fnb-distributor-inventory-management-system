@@ -54,7 +54,6 @@ const Customers = () => {
             </option>
           ))}
         </select>
-        <button type="submit">Apply Filters</button>
       </form>
 
       {loading ? (

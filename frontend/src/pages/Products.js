@@ -79,7 +79,6 @@ const Products = () => {
           />
           Low Stock (&lt; 100)
         </label>
-        <button type="submit">Apply Filters</button>
       </form>
 
       {loading ? (
