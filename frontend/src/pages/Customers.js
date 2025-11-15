@@ -8,7 +8,7 @@ const Customers = () => {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("");
 
-  const customerStatuses = ["Active", "Inactive", "On Hold"]; // Example statuses
+  const customerStatuses = ["active", "inactive"]; // Example statuses
 
   useEffect(() => {
     const loadCustomers = async () => {

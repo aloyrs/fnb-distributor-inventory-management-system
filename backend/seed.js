@@ -160,6 +160,14 @@ const seedDatabase = async () => {
         customer_type: "retail",
         status: "active",
       },
+      {
+        name: "Pinnacle Events Catering",
+        email: "orders@pinnacleevents.com",
+        phone: "+65 6888 7777",
+        address: "99 Outram Park, Singapore",
+        customer_type: "wholesale",
+        status: "inactive",
+      },
     ]);
 
     console.log("Customers created");
