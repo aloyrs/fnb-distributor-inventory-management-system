@@ -1,0 +1,6 @@
+*.db
+*.db-journal
+node_modules
+.env
+.vscode/
+*.sqlite
