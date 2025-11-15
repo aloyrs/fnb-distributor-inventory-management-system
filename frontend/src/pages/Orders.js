@@ -8,11 +8,11 @@ const Orders = () => {
   const [status, setStatus] = useState("");
 
   const orderStatuses = [
-    "Pending",
-    "Processing",
-    "Shipped",
-    "Delivered",
-    "Cancelled",
+    "completed",
+    "processing",
+    "shipped",
+    "delivered",
+    "cancelled",
   ];
 
   useEffect(() => {
