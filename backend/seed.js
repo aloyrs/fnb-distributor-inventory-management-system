@@ -227,7 +227,7 @@ const seedDatabase = async () => {
     // Create Customer Orders
     const order1 = await CustomerOrder.create({
       customer_id: customers[0].customer_id,
-      order_date: new Date("2024-11-01"),
+      order_date: new Date("2025-11-01"),
       total_amount: 1050.0,
       status: "completed",
       shipping_address: "10 Orchard Road, Singapore",
@@ -274,7 +274,7 @@ const seedDatabase = async () => {
 
     const order2 = await CustomerOrder.create({
       customer_id: customers[1].customer_id,
-      order_date: new Date("2024-11-05"),
+      order_date: new Date("2025-11-05"),
       total_amount: 1895.0,
       status: "processing",
       shipping_address: "50 Marina Bay, Singapore",

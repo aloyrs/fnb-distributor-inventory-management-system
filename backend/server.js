@@ -11,27 +11,25 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // // Import routes
-// const productRoutes = require("./routes/products");
-// const supplierRoutes = require("./routes/suppliers");
-// const supplierPurchaseRoutes = require("./routes/supplierPurchases");
-// const customerRoutes = require("./routes/customers");
-// const customerOrderRoutes = require("./routes/customerOrders");
-// const dashboardRoutes = require("./routes/dashboard");
-// const reportRoutes = require("./routes/reports");
+const productRoutes = require("./routes/products");
+const supplierRoutes = require("./routes/suppliers");
+const supplierPurchaseRoutes = require("./routes/supplierPurchases");
+const customerRoutes = require("./routes/customers");
+const customerOrderRoutes = require("./routes/customerOrders");
+const dashboardRoutes = require("./routes/dashboard");
 
 // // Use routes
-// app.use("/api/products", productRoutes);
-// app.use("/api/suppliers", supplierRoutes);
-// app.use("/api/supplier-purchases", supplierPurchaseRoutes);
-// app.use("/api/customers", customerRoutes);
-// app.use("/api/customer-orders", customerOrderRoutes);
-// app.use("/api/dashboard", dashboardRoutes);
-// app.use("/api/reports", reportRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/suppliers", supplierRoutes);
+app.use("/api/supplier-purchases", supplierPurchaseRoutes);
+app.use("/api/customers", customerRoutes);
+app.use("/api/customer-orders", customerOrderRoutes);
+app.use("/api/dashboard", dashboardRoutes);
 
-// // Health check endpoint
-// app.get("/api/health", (req, res) => {
-//   res.json({ status: "OK", message: "Server is running" });
-// });
+// Health check endpoint
+app.get("/api/health", (req, res) => {
+  res.json({ status: "OK", message: "Server is running" });
+});
 
 // Error handling middleware
 app.use((err, req, res, next) => {
