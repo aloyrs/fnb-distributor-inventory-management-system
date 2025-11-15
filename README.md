@@ -12,7 +12,7 @@ To start backend:
   - This starts backend application and sequelize ORM will create the database with tables.
   - Also populates data into the database tables.
 
-To start backend:
+To start frontend:
 
-- Open a terminal `cd backend` and run `npm install` then `npm start`:
+- Open a terminal `cd frontend` and run `npm install` then `npm start`:
   - This starts the React frontend application.
