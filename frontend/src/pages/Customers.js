@@ -47,7 +47,7 @@ const Customers = () => {
           onChange={(e) => setSearch(e.target.value)}
         />
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All Statuses</option>
+          <option value="">All Status</option>
           {customerStatuses.map((s, index) => (
             <option key={index} value={s}>
               {s}

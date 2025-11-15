@@ -1,6 +1,7 @@
 // src/pages/Orders.js
 import React, { useState, useEffect } from "react";
 import { getCustomerOrders } from "../api/inventoryApi";
+import { useNavigate } from "react-router-dom";
 
 const Orders = () => {
   const [orders, setOrders] = useState([]);
@@ -15,12 +16,17 @@ const Orders = () => {
     "cancelled",
   ];
 
+  const navigate = useNavigate();
+
+  const handleRowClick = (orderId) => {
+    navigate(`/orders/${orderId}`);
+  };
+
   useEffect(() => {
     const loadOrders = async () => {
       setLoading(true);
       const filters = {
         status: status,
-        // You can add logic for startDate and endDate here
       };
 
       try {
@@ -41,7 +47,7 @@ const Orders = () => {
 
       <div className="filter-bar">
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All Statuses</option>
+          <option value="">All Status</option>
           {orderStatuses.map((s, index) => (
             <option key={index} value={s}>
               {s}
@@ -65,7 +71,11 @@ const Orders = () => {
           </thead>
           <tbody>
             {orders.map((o) => (
-              <tr key={o.order_id}>
+              <tr
+                key={o.order_id}
+                onClick={() => handleRowClick(o.order_id)}
+                style={{ cursor: "pointer" }}
+              >
                 <td>{o.order_id}</td>
                 <td>{o.customer?.name || "N/A"}</td>
                 <td>{new Date(o.order_date).toLocaleDateString()}</td>

@@ -307,10 +307,17 @@ router.put("/:orderId/items/:itemId", async (req, res) => {
     const oldQuantity = item.quantity;
     const oldSubtotal = parseFloat(item.subtotal);
 
-    const { quantity, unit_price } = req.body;
+    const { quantity } = req.body;
+    const unit_price = item.unit_price;
+
+    if (quantity === undefined) {
+      return res
+        .status(400)
+        .json({ error: "Quantity must be provided for update." });
+    }
+
     const quantityDifference = quantity - oldQuantity;
 
-    // Check stock if increasing quantity
     if (quantityDifference > 0) {
       const product = await Product.findByPk(item.product_id);
       if (product.stock_quantity < quantityDifference) {
@@ -331,7 +338,6 @@ router.put("/:orderId/items/:itemId", async (req, res) => {
       { transaction: t }
     );
 
-    // Update product stock
     const product = await Product.findByPk(item.product_id);
     if (product) {
       await product.update(
@@ -342,7 +348,6 @@ router.put("/:orderId/items/:itemId", async (req, res) => {
       );
     }
 
-    // Update order total
     const order = await CustomerOrder.findByPk(req.params.orderId);
     await order.update(
       {

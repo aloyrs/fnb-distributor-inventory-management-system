@@ -42,7 +42,7 @@ const Purchases = () => {
 
       <div className="filter-bar">
         <select value={status} onChange={(e) => setStatus(e.target.value)}>
-          <option value="">All Statuses</option>
+          <option value="">All Status</option>
           {purchaseStatuses.map((s, index) => (
             <option key={index} value={s}>
               {s}

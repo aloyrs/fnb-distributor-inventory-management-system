@@ -30,6 +30,7 @@ export const getCustomers = (filters) =>
 export const getCustomerOrders = (filters) =>
   api.get("/customer-orders", { params: filters });
 
+// --- Customer Order Items Endpoints
 /**
  * Fetches the details of a single Customer Order, including its items.
  * Corresponds to: GET /api/customer-orders/:orderId
@@ -37,6 +38,15 @@ export const getCustomerOrders = (filters) =>
  */
 export const getCustomerOrderDetails = (orderId) =>
   api.get(`/customer-orders/${orderId}`);
+
+export const createOrderItem = (orderId, data) =>
+  api.post(`/customer-orders/${orderId}/items`, data);
+
+export const updateOrderItem = (orderId, itemId, updatedData) => {
+  return api.put(`/customer-orders/${orderId}/items/${itemId}`, updatedData);
+};
+export const deleteOrderItem = (orderId, itemId) =>
+  api.delete(`/customer-orders/${orderId}/items/${itemId}`);
 
 // --- Supplier Endpoints (suppliers.js)
 export const getSuppliers = (filters) =>
@@ -63,7 +73,5 @@ export const updatePurchaseItem = (purchaseId, itemId, data) =>
 
 export const deletePurchaseItem = (purchaseId, itemId) =>
   api.delete(`/supplier-purchases/${purchaseId}/items/${itemId}`);
-
-console.log(API_BASE_URL);
 
 export default api;
