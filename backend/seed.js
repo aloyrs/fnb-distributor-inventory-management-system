@@ -9,42 +9,32 @@ const {
   CustomerOrderItem,
 } = require("./models");
 
-// Helper map to quickly reference product selling prices by their array index
-// Used to calculate the cheaper purchase cost (80% of selling price)
 const PRODUCT_SELLING_PRICES = [
-  12.5, // [0] Organic Rice 5kg
-  18.9, // [1] Olive Oil 1L
-  3.5, // [2] Fresh Milk 1L
-  4.2, // [3] Pasta 500g
-  5.8, // [4] Orange Juice 1L
-  22.0, // [5] Coffee Beans 500g
-  2.5, // [6] Canned Tomatoes 400g
-  6.5, // [7] Soy Sauce 1L
-  8.5, // [8] Chicken Breast 1kg
-  10.0, // [9] Mixed Salad Greens 1kg
-  35.0, // [10] Sugar 25kg Bag
-  15.0, // [11] Sparkling Water 500ml
-  4.0, // [12] Sea Salt 1kg
-  7.5, // [13] Frozen French Fries 2kg
-  80.0, // [14] Beef Tenderloin 5kg
+  12.5, 18.9, 3.5, 4.2, 5.8, 22.0, 2.5, 6.5, 8.5, 10.0, 35.0, 15.0, 4.0, 7.5,
+  80.0,
 ];
 
-/**
- * Calculates a cheaper purchase cost (80% of selling price) and rounds to 2 decimals.
- * @param {number} productIndex The index of the product in the PRODUCTS array.
- * @returns {number} The calculated unit cost.
- */
 const getPurchaseCost = (productIndex) => {
   const sellingPrice = PRODUCT_SELLING_PRICES[productIndex];
   return parseFloat((sellingPrice * 0.8).toFixed(2));
 };
 
+const createMany = async (Model, items) => {
+  const created = [];
+  for (const it of items) {
+    const rec = await Model.create(it);
+    created.push(rec);
+  }
+  return created;
+};
+
 const seedDatabase = async () => {
   try {
     await sequelize.sync({ force: true });
-    console.log("Database synced");
+    console.log("Database synced (force: true)");
 
-    const suppliers = await Supplier.bulkCreate([
+    // --- Suppliers ---
+    const supplierSpecs = [
       {
         name: "Fresh Foods Supplier",
         contact_person: "John Tan",
@@ -72,7 +62,6 @@ const seedDatabase = async () => {
         region: "West",
         status: "active",
       },
-
       {
         name: "Asian Produce Co",
         contact_person: "Sam Wong",
@@ -118,12 +107,12 @@ const seedDatabase = async () => {
         region: "Central",
         status: "active",
       },
-    ]);
+    ];
+    const suppliers = await createMany(Supplier, supplierSpecs);
+    console.log(`Created ${suppliers.length} suppliers`);
 
-    console.log(`Suppliers created: ${suppliers.length}`);
-
-    // Note: unit_price here is the selling price to the customer
-    const products = await Product.bulkCreate([
+    // --- Products
+    const productSpecs = [
       {
         name: "Organic Rice 5kg",
         description: "Premium organic white rice",
@@ -132,7 +121,7 @@ const seedDatabase = async () => {
         unit_price: 12.5,
         stock_quantity: 450,
         reorder_level: 100,
-        supplier_id: suppliers[0].supplier_id,
+        supplierIndex: 0,
       },
       {
         name: "Olive Oil 1L",
@@ -142,7 +131,7 @@ const seedDatabase = async () => {
         unit_price: 18.9,
         stock_quantity: 80,
         reorder_level: 100,
-        supplier_id: suppliers[1].supplier_id,
+        supplierIndex: 1,
       },
       {
         name: "Fresh Milk 1L",
@@ -152,7 +141,7 @@ const seedDatabase = async () => {
         unit_price: 3.5,
         stock_quantity: 250,
         reorder_level: 150,
-        supplier_id: suppliers[0].supplier_id,
+        supplierIndex: 0,
       },
       {
         name: "Pasta 500g",
@@ -162,7 +151,7 @@ const seedDatabase = async () => {
         unit_price: 4.2,
         stock_quantity: 350,
         reorder_level: 100,
-        supplier_id: suppliers[1].supplier_id,
+        supplierIndex: 1,
       },
       {
         name: "Orange Juice 1L",
@@ -172,7 +161,7 @@ const seedDatabase = async () => {
         unit_price: 5.8,
         stock_quantity: 60,
         reorder_level: 100,
-        supplier_id: suppliers[2].supplier_id,
+        supplierIndex: 2,
       },
       {
         name: "Coffee Beans 500g",
@@ -182,7 +171,7 @@ const seedDatabase = async () => {
         unit_price: 22.0,
         stock_quantity: 120,
         reorder_level: 50,
-        supplier_id: suppliers[2].supplier_id,
+        supplierIndex: 2,
       },
       {
         name: "Canned Tomatoes 400g",
@@ -192,7 +181,7 @@ const seedDatabase = async () => {
         unit_price: 2.5,
         stock_quantity: 500,
         reorder_level: 200,
-        supplier_id: suppliers[0].supplier_id,
+        supplierIndex: 0,
       },
       {
         name: "Soy Sauce 1L",
@@ -202,9 +191,8 @@ const seedDatabase = async () => {
         unit_price: 6.5,
         stock_quantity: 180,
         reorder_level: 100,
-        supplier_id: suppliers[1].supplier_id,
+        supplierIndex: 1,
       },
-
       {
         name: "Chicken Breast 1kg",
         description: "Frozen chicken breast",
@@ -213,7 +201,7 @@ const seedDatabase = async () => {
         unit_price: 8.5,
         stock_quantity: 150,
         reorder_level: 50,
-        supplier_id: suppliers[4].supplier_id,
+        supplierIndex: 4,
       },
       {
         name: "Mixed Salad Greens 1kg",
@@ -223,7 +211,7 @@ const seedDatabase = async () => {
         unit_price: 10.0,
         stock_quantity: 50,
         reorder_level: 80,
-        supplier_id: suppliers[3].supplier_id,
+        supplierIndex: 3,
       },
       {
         name: "Sugar 25kg Bag",
@@ -233,7 +221,7 @@ const seedDatabase = async () => {
         unit_price: 35.0,
         stock_quantity: 300,
         reorder_level: 150,
-        supplier_id: suppliers[6].supplier_id,
+        supplierIndex: 6,
       },
       {
         name: "Sparkling Water 500ml",
@@ -243,7 +231,7 @@ const seedDatabase = async () => {
         unit_price: 15.0,
         stock_quantity: 800,
         reorder_level: 200,
-        supplier_id: suppliers[2].supplier_id,
+        supplierIndex: 2,
       },
       {
         name: "Sea Salt 1kg",
@@ -253,7 +241,7 @@ const seedDatabase = async () => {
         unit_price: 4.0,
         stock_quantity: 120,
         reorder_level: 50,
-        supplier_id: suppliers[7].supplier_id,
+        supplierIndex: 7,
       },
       {
         name: "Frozen French Fries 2kg",
@@ -263,7 +251,7 @@ const seedDatabase = async () => {
         unit_price: 7.5,
         stock_quantity: 400,
         reorder_level: 100,
-        supplier_id: suppliers[1].supplier_id,
+        supplierIndex: 1,
       },
       {
         name: "Beef Tenderloin 5kg",
@@ -273,13 +261,26 @@ const seedDatabase = async () => {
         unit_price: 80.0,
         stock_quantity: 70,
         reorder_level: 100,
-        supplier_id: suppliers[4].supplier_id,
+        supplierIndex: 4,
       },
-    ]);
+    ];
 
-    console.log(`Products created: ${products.length}`);
+    const productCreateSpecs = productSpecs.map((p) => ({
+      name: p.name,
+      description: p.description,
+      category: p.category,
+      unit: p.unit,
+      unit_price: p.unit_price,
+      stock_quantity: p.stock_quantity,
+      reorder_level: p.reorder_level,
+      supplier_id: suppliers[p.supplierIndex].supplier_id,
+    }));
 
-    const customers = await Customer.bulkCreate([
+    const products = await createMany(Product, productCreateSpecs);
+    console.log(`Created ${products.length} products`);
+
+    // --- Customers ---
+    const customerSpecs = [
       {
         name: "Sunshine Cafe",
         email: "orders@sunshinecafe.com",
@@ -312,7 +313,6 @@ const seedDatabase = async () => {
         customer_type: "wholesale",
         status: "inactive",
       },
-
       {
         name: "The Daily Grind",
         email: "info@dailygrind.com",
@@ -345,404 +345,662 @@ const seedDatabase = async () => {
         customer_type: "wholesale",
         status: "inactive",
       },
-    ]);
+    ];
+    const customers = await createMany(Customer, customerSpecs);
+    console.log(`Created ${customers.length} customers`);
 
-    console.log(`Customers created: ${customers.length}`);
+    // --- Supplier Purchases specs
+    const supplierPurchaseSpecs = [
+      // 2023
+      {
+        supplierIndex: 5,
+        purchase_date: "2023-01-09",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 1,
+        purchase_date: "2023-02-14",
+        status: "ordered",
+        initialNotes: "Upcoming large order",
+      },
+      {
+        supplierIndex: 3,
+        purchase_date: "2023-03-24",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 2,
+        purchase_date: "2023-05-18",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 0,
+        purchase_date: "2023-06-03",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 4,
+        purchase_date: "2023-07-11",
+        status: "ordered",
+        initialNotes: "Upcoming order",
+      },
+      {
+        supplierIndex: 1,
+        purchase_date: "2023-08-27",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 5,
+        purchase_date: "2023-10-18",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 7,
+        purchase_date: "2023-11-20",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      // 2024
+      {
+        supplierIndex: 0,
+        purchase_date: "2024-01-05",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 4,
+        purchase_date: "2024-03-12",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 2,
+        purchase_date: "2024-05-01",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 6,
+        purchase_date: "2024-07-29",
+        status: "ordered",
+        initialNotes: "Small order",
+      },
+      {
+        supplierIndex: 3,
+        purchase_date: "2024-09-09",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 0,
+        purchase_date: "2024-11-28",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      // 2025
+      {
+        supplierIndex: 1,
+        purchase_date: "2025-01-10",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 3,
+        purchase_date: "2025-02-18",
+        status: "ordered",
+        initialNotes: "Upcoming bulk order",
+      },
+      {
+        supplierIndex: 0,
+        purchase_date: "2025-03-12",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 4,
+        purchase_date: "2025-06-20",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+      {
+        supplierIndex: 2,
+        purchase_date: "2025-09-15",
+        status: "ordered",
+        initialNotes: "Seasonal restock",
+      },
+      {
+        supplierIndex: 6,
+        purchase_date: "2025-11-02",
+        status: "completed",
+        initialNotes: "Stock replenishment",
+      },
+    ];
 
-    // --- Supplier Purchases (unit_cost and total_amount recalculated) ---
-
-    // Purchase 1: New Total = 2500.0 (Was 3125.0)
-    const purchase1 = await SupplierPurchase.create({
-      supplier_id: suppliers[0].supplier_id,
-      purchase_date: new Date("2024-10-15"),
-      total_amount: 2500.0,
-      status: "completed",
-      notes: "Regular monthly stock",
-    });
-
-    await SupplierPurchaseItem.bulkCreate([
-      {
-        purchase_id: purchase1.purchase_id,
-        product_id: products[0].product_id, // Rice (Selling: 12.5)
-        quantity: 100,
-        unit_cost: getPurchaseCost(0), // 10.00
-        subtotal: 1000.0,
-      },
-      {
-        purchase_id: purchase1.purchase_id,
-        product_id: products[2].product_id, // Milk (Selling: 3.5)
-        quantity: 200,
-        unit_cost: getPurchaseCost(2), // 2.80
-        subtotal: 560.0,
-      },
-      {
-        purchase_id: purchase1.purchase_id,
-        product_id: products[6].product_id, // Canned Tomatoes (Selling: 2.5)
-        quantity: 470,
-        unit_cost: getPurchaseCost(6), // 2.00
-        subtotal: 940.0,
-      },
-    ]);
-
-    // Purchase 2: New Total = 760.0 (Was 950.0)
-    const purchase2 = await SupplierPurchase.create({
-      supplier_id: suppliers[2].supplier_id,
-      purchase_date: new Date("2024-10-20"),
-      total_amount: 760.0,
-      status: "completed",
-      notes: "Beverage restock",
-    });
-
-    await SupplierPurchaseItem.bulkCreate([
-      {
-        purchase_id: purchase2.purchase_id,
-        product_id: products[4].product_id, // Orange Juice (Selling: 5.8)
-        quantity: 50,
-        unit_cost: getPurchaseCost(4), // 4.64
-        subtotal: 232.0,
-      },
-      {
-        purchase_id: purchase2.purchase_id,
-        product_id: products[5].product_id, // Coffee Beans (Selling: 22.0)
-        quantity: 30,
-        unit_cost: getPurchaseCost(5), // 17.60
-        subtotal: 528.0,
-      },
-    ]);
-
-    // Purchase 3: New Total = 2000.0 (Was 2500.0)
-    const purchase3 = await SupplierPurchase.create({
-      supplier_id: suppliers[3].supplier_id,
-      purchase_date: new Date("2025-10-01"),
-      total_amount: 2000.0,
-      status: "completed",
-      notes: "Monthly produce delivery",
-    });
-
-    await SupplierPurchaseItem.bulkCreate([
-      {
-        purchase_id: purchase3.purchase_id,
-        product_id: products[9].product_id, // Mixed Salad Greens (Selling: 10.0)
-        quantity: 250,
-        unit_cost: getPurchaseCost(9), // 8.00
-        subtotal: 2000.0,
-      },
-    ]);
-
-    // Purchase 4: New Total = 1960.0 (Was 2550.0)
-    const purchase4 = await SupplierPurchase.create({
-      supplier_id: suppliers[4].supplier_id,
-      purchase_date: new Date("2025-11-10"),
-      total_amount: 1960.0,
-      status: "ordered",
-      notes: "Urgent meat delivery",
-    });
-
-    await SupplierPurchaseItem.bulkCreate([
-      {
-        purchase_id: purchase4.purchase_id,
-        product_id: products[8].product_id, // Chicken Breast (Selling: 8.5)
-        quantity: 100,
-        unit_cost: getPurchaseCost(8), // 6.80
-        subtotal: 680.0,
-      },
-      {
-        purchase_id: purchase4.purchase_id,
-        product_id: products[14].product_id, // Beef Tenderloin (Selling: 80.0)
-        quantity: 20,
-        unit_cost: getPurchaseCost(14), // 64.00
-        subtotal: 1280.0,
-      },
-    ]);
-
-    // Purchase 5: New Total = 3680.0 (Was 4700.0)
-    const purchase5 = await SupplierPurchase.create({
-      supplier_id: suppliers[1].supplier_id,
-      purchase_date: new Date("2025-11-12"),
-      total_amount: 3680.0,
-      status: "completed",
-      notes: "Annual bulk stock",
-    });
-
-    await SupplierPurchaseItem.bulkCreate([
-      {
-        purchase_id: purchase5.purchase_id,
-        product_id: products[10].product_id, // Sugar (Selling: 35.0)
-        quantity: 120,
-        unit_cost: getPurchaseCost(10), // 28.00
-        subtotal: 3360.0,
-      },
-      {
-        purchase_id: purchase5.purchase_id,
-        product_id: products[12].product_id, // Sea Salt (Selling: 4.0)
-        quantity: 100,
-        unit_cost: getPurchaseCost(12), // 3.20
-        subtotal: 320.0,
-      },
-    ]);
-
-    console.log(`Supplier purchases created: 5`);
-
-    // --- Customer Orders (No change, as unit_price is still the selling price) ---
-    const order1 = await CustomerOrder.create({
-      customer_id: customers[0].customer_id,
-      order_date: new Date("2025-11-01"),
-      total_amount: 1050.0,
-      status: "completed",
-      shipping_address: "10 Orchard Road, Singapore",
-    });
-
-    await CustomerOrderItem.bulkCreate([
-      {
-        order_id: order1.order_id,
-        product_id: products[0].product_id,
-        quantity: 20,
-        unit_price: 12.5,
-        subtotal: 250.0,
-      },
-      {
-        order_id: order1.order_id,
-        product_id: products[2].product_id,
-        quantity: 50,
-        unit_price: 3.5,
-        subtotal: 175.0,
-      },
-      {
-        order_id: order1.order_id,
-        product_id: products[5].product_id,
-        quantity: 10,
-        unit_price: 22.0,
-        subtotal: 220.0,
-      },
-      {
-        order_id: order1.order_id,
-        product_id: products[6].product_id,
-        quantity: 100,
-        unit_price: 2.5,
-        subtotal: 250.0,
-      },
-      {
-        order_id: order1.order_id,
-        product_id: products[7].product_id,
-        quantity: 24,
-        unit_price: 6.5,
-        subtotal: 156.0,
-      },
-    ]);
-
-    const order2 = await CustomerOrder.create({
-      customer_id: customers[1].customer_id,
-      order_date: new Date("2025-11-05"),
-      total_amount: 1895.0,
-      status: "processing",
-      shipping_address: "50 Marina Bay, Singapore",
-    });
-
-    await CustomerOrderItem.bulkCreate([
-      {
-        order_id: order2.order_id,
-        product_id: products[1].product_id,
-        quantity: 50,
-        unit_price: 18.9,
-        subtotal: 945.0,
-      },
-      {
-        order_id: order2.order_id,
-        product_id: products[3].product_id,
-        quantity: 100,
-        unit_price: 4.2,
-        subtotal: 420.0,
-      },
-      {
-        order_id: order2.order_id,
-        product_id: products[4].product_id,
-        quantity: 30,
-        unit_price: 5.8,
-        subtotal: 174.0,
-      },
-      {
-        order_id: order2.order_id,
-        product_id: products[7].product_id,
-        quantity: 50,
-        unit_price: 6.5,
-        subtotal: 325.0,
-      },
-    ]);
-
-    const order3 = await CustomerOrder.create({
-      customer_id: customers[5].customer_id,
-      order_date: new Date("2025-10-25"),
-      total_amount: 5125.0,
-      status: "shipped",
-      shipping_address: "1 Retail Park, Singapore",
-      notes: "Large wholesale order",
-    });
-
-    await CustomerOrderItem.bulkCreate([
-      {
-        order_id: order3.order_id,
-        product_id: products[0].product_id,
-        quantity: 150,
-        unit_price: 12.5,
-        subtotal: 1875.0,
-      },
-      {
-        order_id: order3.order_id,
-        product_id: products[10].product_id,
-        quantity: 80,
-        unit_price: 35.0,
-        subtotal: 2800.0,
-      },
-      {
-        order_id: order3.order_id,
-        product_id: products[11].product_id,
-        quantity: 30,
-        unit_price: 15.0,
-        subtotal: 450.0,
-      },
-    ]);
-
-    const order4 = await CustomerOrder.create({
-      customer_id: customers[6].customer_id,
-      order_date: new Date("2025-11-10"),
-      total_amount: 479.0,
-      status: "completed",
-      shipping_address: "15 CBD Square, Singapore",
-    });
-
-    await CustomerOrderItem.bulkCreate([
-      {
-        order_id: order4.order_id,
-        product_id: products[2].product_id,
-        quantity: 40,
-        unit_price: 3.5,
-        subtotal: 140.0,
-      },
-      {
-        order_id: order4.order_id,
-        product_id: products[5].product_id,
-        quantity: 5,
-        unit_price: 22.0,
-        subtotal: 110.0,
-      },
-      {
-        order_id: order4.order_id,
-        product_id: products[9].product_id,
-        quantity: 15,
-        unit_price: 10.0,
-        subtotal: 150.0,
-      },
-      {
-        order_id: order4.order_id,
-        product_id: products[12].product_id,
-        quantity: 19,
-        unit_price: 4.0,
-        subtotal: 76.0,
-      },
-    ]);
-
-    const order5 = await CustomerOrder.create({
-      customer_id: customers[2].customer_id,
-      order_date: new Date("2025-11-14"),
-      total_amount: 1450.0,
-      status: "pending",
-      shipping_address: "25 Tanjong Pagar, Singapore",
-      notes: "Need delivery before 1pm",
-    });
-
-    await CustomerOrderItem.bulkCreate([
-      {
-        order_id: order5.order_id,
-        product_id: products[3].product_id,
-        quantity: 100,
-        unit_price: 4.2,
-        subtotal: 420.0,
-      },
-      {
-        order_id: order5.order_id,
-        product_id: products[13].product_id,
-        quantity: 80,
-        unit_price: 7.5,
-        subtotal: 600.0,
-      },
-      {
-        order_id: order5.order_id,
-        product_id: products[8].product_id,
-        quantity: 50,
-        unit_price: 8.5,
-        subtotal: 425.0,
-      },
-    ]);
-
-    const order6 = await CustomerOrder.create({
-      customer_id: customers[1].customer_id,
-      order_date: new Date("2025-09-01"),
-      total_amount: 720.0,
-      status: "completed",
-      shipping_address: "50 Marina Bay, Singapore",
-    });
-
-    await CustomerOrderItem.bulkCreate([
-      {
-        order_id: order6.order_id,
-        product_id: products[14].product_id,
-        quantity: 9,
-        unit_price: 80.0,
-        subtotal: 720.0,
-      },
-    ]);
-
-    const order7 = await CustomerOrder.create({
-      customer_id: customers[4].customer_id,
-      order_date: new Date("2025-11-13"),
-      total_amount: 440.0,
-      status: "shipped",
-      shipping_address: "88 Market Street, Singapore",
-    });
-
-    await CustomerOrderItem.bulkCreate([
-      {
-        order_id: order7.order_id,
-        product_id: products[5].product_id,
-        quantity: 20,
-        unit_price: 22.0,
-        subtotal: 440.0,
-      },
-    ]);
-
-    const order8 = await CustomerOrder.create({
-      customer_id: customers[0].customer_id,
-      order_date: new Date("2025-08-01"),
-      total_amount: 100.0,
-      status: "cancelled",
-      shipping_address: "10 Orchard Road, Singapore",
-    });
-
-    await CustomerOrderItem.bulkCreate([
-      {
-        order_id: order8.order_id,
-        product_id: products[4].product_id,
-        quantity: 15,
-        unit_price: 5.8,
-        subtotal: 87.0,
-      },
-    ]);
-
-    console.log(`Customer orders created: 8`);
-
-    console.log("=== Database seeded successfully! ===");
-    console.log("Sample Data Summary:");
-    console.log(`- ${suppliers.length} Suppliers (7 Active, 1 Inactive)`);
-    console.log(`- ${products.length} Products (4 currently low stock)`);
-    console.log(`- ${customers.length} Customers (6 Active, 2 Inactive)`);
-    console.log(`- 5 Supplier Purchases (4 Completed, 1 Ordered)`);
+    // create purchases and collect instances in same order
+    const purchases = [];
+    for (const s of supplierPurchaseSpecs) {
+      const purchase = await SupplierPurchase.create({
+        supplier_id: suppliers[s.supplierIndex].supplier_id,
+        purchase_date: new Date(s.purchase_date),
+        total_amount: 0, // will compute after adding items
+        status: s.status,
+        notes: s.initialNotes,
+      });
+      purchases.push(purchase);
+    }
     console.log(
-      `- 8 Customer Orders (4 Completed, 2 Shipped, 1 Processing, 1 Pending, 1 Cancelled)`
+      `Created ${purchases.length} supplier purchases (placeholders for totals)`
     );
 
+    // --- Supplier Purchase Items specs
+    const purchaseItemSpecs = [
+      // purchase 0 (2023-01-09)
+      { purchaseIndex: 0, productIndex: 9, quantity: 130 },
+      { purchaseIndex: 0, productIndex: 10, quantity: 15 },
+      // purchase 1 (2023-02-14)
+      { purchaseIndex: 1, productIndex: 14, quantity: 100 },
+      { purchaseIndex: 1, productIndex: 0, quantity: 80 },
+      // purchase 2 (2023-03-24)
+      { purchaseIndex: 2, productIndex: 9, quantity: 50 },
+      { purchaseIndex: 2, productIndex: 3, quantity: 20 },
+      // purchase 3 (2023-05-18)
+      { purchaseIndex: 3, productIndex: 5, quantity: 40 },
+      { purchaseIndex: 3, productIndex: 2, quantity: 120 },
+      // purchase 4 (2023-06-03)
+      { purchaseIndex: 4, productIndex: 0, quantity: 250 },
+      { purchaseIndex: 4, productIndex: 6, quantity: 150 },
+      // purchase 5 (2023-07-11)
+      { purchaseIndex: 5, productIndex: 3, quantity: 65 },
+      // purchase 6 (2023-08-27)
+      { purchaseIndex: 6, productIndex: 1, quantity: 40 },
+      { purchaseIndex: 6, productIndex: 12, quantity: 20 },
+      // purchase 7 (2023-10-18)
+      { purchaseIndex: 7, productIndex: 10, quantity: 60 },
+      // purchase 8 (2023-11-20)
+      { purchaseIndex: 8, productIndex: 9, quantity: 100 },
+      { purchaseIndex: 8, productIndex: 14, quantity: 80 },
+      { purchaseIndex: 8, productIndex: 0, quantity: 10 },
+      // purchase 9 (2024-01-05)
+      { purchaseIndex: 9, productIndex: 4, quantity: 100 },
+      // purchase 10 (2024-03-12)
+      { purchaseIndex: 10, productIndex: 8, quantity: 200 },
+      { purchaseIndex: 10, productIndex: 14, quantity: 40 },
+      // purchase 11 (2024-05-01)
+      { purchaseIndex: 11, productIndex: 11, quantity: 100 },
+      // purchase 12 (2024-07-29)
+      { purchaseIndex: 12, productIndex: 14, quantity: 2 },
+      // purchase 13 (2024-09-09)
+      { purchaseIndex: 13, productIndex: 9, quantity: 90 },
+      { purchaseIndex: 13, productIndex: 14, quantity: 30 },
+      // purchase 14 (2024-11-28)
+      { purchaseIndex: 14, productIndex: 0, quantity: 100 },
+      { purchaseIndex: 14, productIndex: 6, quantity: 120 },
+      // purchase 15 (2025-01-10)
+      { purchaseIndex: 15, productIndex: 0, quantity: 150 },
+      { purchaseIndex: 15, productIndex: 12, quantity: 70 },
+      // purchase 16 (2025-02-18)
+      { purchaseIndex: 16, productIndex: 3, quantity: 120 },
+      { purchaseIndex: 16, productIndex: 9, quantity: 60 },
+      // purchase 17 (2025-03-12)
+      { purchaseIndex: 17, productIndex: 6, quantity: 300 },
+      { purchaseIndex: 17, productIndex: 4, quantity: 150 },
+      // purchase 18 (2025-06-20)
+      { purchaseIndex: 18, productIndex: 8, quantity: 80 },
+      { purchaseIndex: 18, productIndex: 11, quantity: 40 },
+      // purchase 19 (2025-09-15)
+      { purchaseIndex: 19, productIndex: 10, quantity: 150 },
+      // purchase 20 (2025-11-02)
+      { purchaseIndex: 20, productIndex: 1, quantity: 50 },
+    ];
+
+    // create purchase items, compute subtotal and accumulate totals per purchase
+    const purchaseTotals = new Array(purchases.length).fill(0);
+    for (const spec of purchaseItemSpecs) {
+      const purchase = purchases[spec.purchaseIndex];
+      const pIndex = spec.productIndex;
+      const unit_cost = getPurchaseCost(pIndex);
+      const subtotal = parseFloat((unit_cost * spec.quantity).toFixed(2));
+      await SupplierPurchaseItem.create({
+        purchase_id: purchase.purchase_id,
+        product_id: products[pIndex].product_id,
+        quantity: spec.quantity,
+        unit_cost,
+        subtotal,
+      });
+      purchaseTotals[spec.purchaseIndex] += subtotal;
+    }
+
+    // update each purchase with computed total_amount
+    for (let i = 0; i < purchases.length; i++) {
+      const total = parseFloat(purchaseTotals[i].toFixed(2));
+      await purchases[i].update({ total_amount: total });
+    }
+    console.log("Created supplier purchase items and updated totals");
+
+    // --- Customer Orders specs (one of each status + more) ---
+    // statuses used: completed, processing, shipped, pending, cancelled, delivered
+    const orderSpecs = [
+      // 2023 orders
+      {
+        customerIndex: 1,
+        order_date: "2023-01-08",
+        status: "completed",
+        note: "Standard monthly order",
+        items: [
+          { p: 1, q: 50 },
+          { p: 0, q: 15 },
+          { p: 6, q: 22 },
+        ],
+      },
+      {
+        customerIndex: 5,
+        order_date: "2023-01-20",
+        status: "completed",
+        note: "Standard monthly order",
+        items: [
+          { p: 10, q: 80 },
+          { p: 4, q: 7 },
+          { p: 12, q: 50 },
+        ],
+      },
+      {
+        customerIndex: 5,
+        order_date: "2023-02-04",
+        status: "completed",
+        note: "Standard monthly order",
+        items: [
+          { p: 10, q: 40 },
+          { p: 11, q: 10 },
+          { p: 2, q: 3 },
+        ],
+      },
+      {
+        customerIndex: 0,
+        order_date: "2023-02-17",
+        status: "completed",
+        note: "Small order",
+        items: [
+          { p: 4, q: 15 },
+          { p: 12, q: 5 },
+        ],
+      },
+      {
+        customerIndex: 2,
+        order_date: "2023-03-08",
+        status: "completed",
+        note: "Small order",
+        items: [
+          { p: 0, q: 10 },
+          { p: 3, q: 10 },
+        ],
+      },
+      {
+        customerIndex: 4,
+        order_date: "2023-03-24",
+        status: "completed",
+        note: "Cafe restock",
+        items: [
+          { p: 5, q: 10 },
+          { p: 6, q: 22 },
+        ],
+      },
+      {
+        customerIndex: 6,
+        order_date: "2023-04-03",
+        status: "shipped",
+        note: "Event order",
+        items: [
+          { p: 8, q: 50 },
+          { p: 14, q: 50 },
+          { p: 12, q: 4 },
+        ],
+      },
+      {
+        customerIndex: 4,
+        order_date: "2023-04-18",
+        status: "completed",
+        note: "Restock",
+        items: [
+          { p: 3, q: 30 },
+          { p: 7, q: 5 },
+          { p: 2, q: 5 },
+        ],
+      },
+      {
+        customerIndex: 3,
+        order_date: "2023-05-29",
+        status: "completed",
+        note: "Wholesale order",
+        items: [
+          { p: 0, q: 20 },
+          { p: 9, q: 10 },
+          { p: 3, q: 13 },
+        ],
+      },
+      {
+        customerIndex: 7,
+        order_date: "2023-06-15",
+        status: "completed",
+        note: "Small order",
+        items: [{ p: 7, q: 50 }],
+      },
+      {
+        customerIndex: 0,
+        order_date: "2023-07-07",
+        status: "completed",
+        note: "Monthly",
+        items: [
+          { p: 14, q: 4 },
+          { p: 12, q: 5 },
+        ],
+      },
+      {
+        customerIndex: 2,
+        order_date: "2023-07-28",
+        status: "shipped",
+        note: "Shipped",
+        items: [
+          { p: 0, q: 80 },
+          { p: 1, q: 10 },
+          { p: 14, q: 23 },
+        ],
+      },
+      {
+        customerIndex: 5,
+        order_date: "2023-08-16",
+        status: "completed",
+        note: "Large restock",
+        items: [{ p: 10, q: 40 }],
+      },
+      {
+        customerIndex: 1,
+        order_date: "2023-09-02",
+        status: "pending",
+        note: "Pending approval",
+        items: [
+          { p: 5, q: 20 },
+          { p: 11, q: 5 },
+        ],
+      },
+      {
+        customerIndex: 4,
+        order_date: "2023-09-20",
+        status: "completed",
+        note: "Small",
+        items: [
+          { p: 4, q: 15 },
+          { p: 6, q: 26 },
+        ],
+      },
+      {
+        customerIndex: 6,
+        order_date: "2023-10-10",
+        status: "completed",
+        note: "Catering",
+        items: [
+          { p: 8, q: 80 },
+          { p: 14, q: 35 },
+          { p: 0, q: 20 },
+        ],
+      },
+      {
+        customerIndex: 7,
+        order_date: "2023-11-04",
+        status: "shipped",
+        note: "Shipped",
+        items: [
+          { p: 0, q: 20 },
+          { p: 14, q: 15 },
+          { p: 9, q: 15 },
+        ],
+      },
+      {
+        customerIndex: 1,
+        order_date: "2023-11-29",
+        status: "completed",
+        note: "Monthly",
+        items: [
+          { p: 14, q: 9 },
+          { p: 10, q: 9 },
+        ],
+      },
+      {
+        customerIndex: 2,
+        order_date: "2023-12-16",
+        status: "completed",
+        note: "Monthly",
+        items: [
+          { p: 8, q: 45 },
+          { p: 11, q: 50 },
+          { p: 14, q: 31 },
+        ],
+      },
+      // 2024 some orders
+      {
+        customerIndex: 0,
+        order_date: "2024-01-26",
+        status: "completed",
+        note: "Monthly",
+        items: [{ p: 9, q: 60 }],
+      },
+      {
+        customerIndex: 3,
+        order_date: "2024-02-11",
+        status: "completed",
+        note: "Wholesale",
+        items: [
+          { p: 1, q: 50 },
+          { p: 6, q: 97 },
+        ],
+      },
+      {
+        customerIndex: 6,
+        order_date: "2024-03-29",
+        status: "completed",
+        note: "Large order",
+        items: [
+          { p: 10, q: 50 },
+          { p: 4, q: 10 },
+        ],
+      },
+      {
+        customerIndex: 4,
+        order_date: "2024-05-15",
+        status: "cancelled",
+        note: "Customer cancel",
+        items: [
+          { p: 4, q: 25 },
+          { p: 2, q: 5 },
+        ],
+      },
+      {
+        customerIndex: 5,
+        order_date: "2024-06-05",
+        status: "shipped",
+        note: "Shipped",
+        items: [
+          { p: 9, q: 35 },
+          { p: 6, q: 10 },
+        ],
+      },
+      {
+        customerIndex: 0,
+        order_date: "2024-07-02",
+        status: "completed",
+        note: "Monthly",
+        items: [
+          { p: 11, q: 50 },
+          { p: 14, q: 10 },
+          { p: 0, q: 3 },
+        ],
+      },
+      {
+        customerIndex: 2,
+        order_date: "2024-08-14",
+        status: "completed",
+        note: "Monthly",
+        items: [
+          { p: 4, q: 25 },
+          { p: 6, q: 15 },
+          { p: 0, q: 4 },
+        ],
+      },
+      {
+        customerIndex: 1,
+        order_date: "2024-09-17",
+        status: "completed",
+        note: "Monthly",
+        items: [
+          { p: 9, q: 30 },
+          { p: 12, q: 5 },
+        ],
+      },
+      {
+        customerIndex: 6,
+        order_date: "2024-10-06",
+        status: "pending",
+        note: "Pending",
+        items: [
+          { p: 8, q: 50 },
+          { p: 6, q: 20 },
+        ],
+      },
+      {
+        customerIndex: 5,
+        order_date: "2024-11-13",
+        status: "completed",
+        note: "Monthly",
+        items: [{ p: 9, q: 60 }],
+      },
+      {
+        customerIndex: 4,
+        order_date: "2024-12-25",
+        status: "completed",
+        note: "Holiday order",
+        items: [
+          { p: 10, q: 25 },
+          { p: 14, q: 20 },
+          { p: 6, q: 8 },
+        ],
+      },
+      // 2025 example orders (one of each important status included)
+      {
+        customerIndex: 0,
+        order_date: "2025-01-07",
+        status: "completed",
+        note: "Monthly 2025",
+        items: [
+          { p: 0, q: 20 },
+          { p: 11, q: 10 },
+        ],
+      },
+      {
+        customerIndex: 3,
+        order_date: "2025-02-22",
+        status: "processing",
+        note: "Processing",
+        items: [
+          { p: 3, q: 30 },
+          { p: 12, q: 5 },
+        ],
+      },
+      {
+        customerIndex: 5,
+        order_date: "2025-04-10",
+        status: "completed",
+        note: "Large restock 2025",
+        items: [
+          { p: 10, q: 60 },
+          { p: 4, q: 10 },
+        ],
+      },
+      {
+        customerIndex: 2,
+        order_date: "2025-06-03",
+        status: "shipped",
+        note: "Shipped 2025",
+        items: [
+          { p: 8, q: 45 },
+          { p: 14, q: 10 },
+        ],
+      },
+      {
+        customerIndex: 6,
+        order_date: "2025-08-29",
+        status: "delivered",
+        note: "Delivered 2025",
+        items: [
+          { p: 9, q: 40 },
+          { p: 1, q: 10 },
+        ],
+      },
+      {
+        customerIndex: 1,
+        order_date: "2025-10-15",
+        status: "cancelled",
+        note: "Cancelled 2025",
+        items: [{ p: 10, q: 20 }],
+      },
+    ];
+
+    // Create orders first with total_amount: 0, then create items, compute totals and update order totals
+    const orders = [];
+    for (const o of orderSpecs) {
+      const ord = await CustomerOrder.create({
+        customer_id: customers[o.customerIndex].customer_id,
+        order_date: new Date(o.order_date),
+        total_amount: 0,
+        status: o.status,
+        shipping_address: `${customers[o.customerIndex].address}`,
+        notes: o.note,
+      });
+      orders.push({ instance: ord, itemsSpec: o.items });
+    }
+
+    // Create order items and update totals
+    for (const o of orders) {
+      let orderTotal = 0;
+      for (const it of o.itemsSpec) {
+        const unit_price = PRODUCT_SELLING_PRICES[it.p];
+        const subtotal = parseFloat((unit_price * it.q).toFixed(2));
+        await CustomerOrderItem.create({
+          order_id: o.instance.order_id,
+          product_id: products[it.p].product_id,
+          quantity: it.q,
+          unit_price,
+          subtotal,
+        });
+        orderTotal += subtotal;
+      }
+      await o.instance.update({
+        total_amount: parseFloat(orderTotal.toFixed(2)),
+      });
+    }
+    console.log("Created customer orders & order items and updated totals");
+
+    // --- Summary Log ---
+    const supplierCount = suppliers.length;
+    const productCount = products.length;
+    const customerCount = customers.length;
+    const purchaseCount = purchases.length;
+    const orderCount = orders.length;
+
+    console.log("=== Database seeded successfully ===");
+    console.log(`Suppliers: ${supplierCount}`);
+    console.log(`Products: ${productCount}`);
+    console.log(`Customers: ${customerCount}`);
+    console.log(`Supplier Purchases: ${purchaseCount}`);
+    console.log(`Customer Orders: ${orderCount}`);
+
     process.exit(0);
-  } catch (error) {
-    console.error("Error seeding database:", error);
+  } catch (err) {
+    console.error("Error seeding database:", err);
     process.exit(1);
   }
 };
