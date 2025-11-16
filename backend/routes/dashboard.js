@@ -172,4 +172,68 @@ router.get("/stock-distribution", async (req, res) => {
   }
 });
 
+// Get supply risk report - products by number of suppliers
+router.get("/supply-risk-report", async (req, res) => {
+  try {
+    const supplyRiskReport = await sequelize.query(
+      `SELECT 
+        p.product_id,
+        p.name,
+        p.category,
+        p.unit_price,
+        p.stock_quantity,
+        COUNT(DISTINCT sp.supplier_id) as supplier_count
+      FROM Products p
+      LEFT JOIN SupplierPurchaseItems spi ON p.product_id = spi.product_id
+      LEFT JOIN SupplierPurchases sp ON spi.purchase_id = sp.purchase_id
+      GROUP BY p.product_id, p.name, p.category, p.unit_price, p.stock_quantity
+      ORDER BY supplier_count ASC, p.name`,
+      { type: sequelize.QueryTypes.SELECT }
+    );
+
+    res.json(supplyRiskReport);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get purchase forecast report
+router.get("/purchase-forecast", async (req, res) => {
+  try {
+    const purchaseForecast = await sequelize.query(
+      `SELECT 
+        p.product_id,
+        p.name,
+        p.category,
+        p.stock_quantity,
+        p.reorder_level,
+        COUNT(spi.item_id) as total_purchases,
+        AVG(spi.quantity) as avg_purchase_qty,
+        ROUND(AVG(spi.quantity), 0) as forecasted_monthly_qty,
+        MAX(sp.purchase_date) as last_purchase_date,
+        ROUND((julianday('now') - julianday(MAX(sp.purchase_date)))) as days_since_purchase,
+        ROUND(
+          (julianday(MAX(sp.purchase_date)) - julianday(MIN(sp.purchase_date))) / 
+          (COUNT(DISTINCT strftime('%Y-%m', sp.purchase_date)))
+        ) as avg_days_between_purchases,
+        CASE 
+          WHEN p.stock_quantity < p.reorder_level THEN 'URGENT'
+          WHEN p.stock_quantity < (p.reorder_level * 1.5) THEN 'SOON'
+          ELSE 'PLANNED'
+        END as purchase_priority,
+        ROUND(p.unit_price * ROUND(AVG(spi.quantity), 0), 2) as estimated_monthly_cost
+      FROM Products p
+      LEFT JOIN SupplierPurchaseItems spi ON p.product_id = spi.product_id
+      LEFT JOIN SupplierPurchases sp ON spi.purchase_id = sp.purchase_id AND sp.status = 'completed'
+      GROUP BY p.product_id, p.name, p.category, p.stock_quantity, p.reorder_level, p.unit_price
+      ORDER BY purchase_priority DESC, last_purchase_date ASC`,
+      { type: sequelize.QueryTypes.SELECT }
+    );
+
+    res.json(purchaseForecast);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 module.exports = router;
