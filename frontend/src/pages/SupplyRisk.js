@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getSupplyRiskReport } from "../api/inventoryApi";
 
 const SupplyRisk = () => {
   const [supplyRiskData, setSupplyRiskData] = useState([]);
@@ -14,12 +14,8 @@ const SupplyRisk = () => {
   const fetchSupplyRiskData = async () => {
     try {
       setLoading(true);
-      const API_BASE_URL =
-        process.env.REACT_APP_API_BASE_URL || "http://localhost:3000/api";
-      const response = await axios.get(
-        `${API_BASE_URL}/dashboard/supply-risk-report`
-      );
-      setSupplyRiskData(response.data);
+      const data = await getSupplyRiskReport();
+      setSupplyRiskData(data.data);
       setError(null);
     } catch (err) {
       setError(err.message);

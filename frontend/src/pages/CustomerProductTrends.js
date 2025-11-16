@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getCustomerProductTrends } from "../api/inventoryApi";
 
 const CustomerProductTrends = () => {
   const [trendsData, setTrendsData] = useState([]);
@@ -15,12 +15,8 @@ const CustomerProductTrends = () => {
   const fetchTrendsData = async () => {
     try {
       setLoading(true);
-      const API_BASE_URL =
-        process.env.REACT_APP_API_BASE_URL || "http://localhost:3000/api";
-      const response = await axios.get(
-        `${API_BASE_URL}/customers/trends/product-analysis`
-      );
-      setTrendsData(response.data);
+      const data = await getCustomerProductTrends();
+      setTrendsData(data.data);
       setError(null);
     } catch (err) {
       setError(err.message);

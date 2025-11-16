@@ -80,4 +80,14 @@ export const updatePurchaseItem = (purchaseId, itemId, data) =>
 export const deletePurchaseItem = (purchaseId, itemId) =>
   api.delete(`/supplier-purchases/${purchaseId}/items/${itemId}`);
 
+// --- Dashboard Reports (dashboard.js)
+export const getSupplyRiskReport = () =>
+  api.get("/dashboard/supply-risk-report");
+export const getPurchaseForecastReport = () =>
+  api.get("/dashboard/purchase-forecast");
+
+// --- Customer Trends (customers.js)
+export const getCustomerProductTrends = () =>
+  api.get("/customers/trends/product-analysis");
+
 export default api;

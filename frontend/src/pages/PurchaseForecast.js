@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { getPurchaseForecastReport } from "../api/inventoryApi";
 
 const PurchaseForecast = () => {
   const [forecastData, setForecastData] = useState([]);
@@ -15,12 +15,8 @@ const PurchaseForecast = () => {
   const fetchForecastData = async () => {
     try {
       setLoading(true);
-      const API_BASE_URL =
-        process.env.REACT_APP_API_BASE_URL || "http://localhost:3000/api";
-      const response = await axios.get(
-        `${API_BASE_URL}/dashboard/purchase-forecast`
-      );
-      setForecastData(response.data);
+      const data = await getPurchaseForecastReport();
+      setForecastData(data.data);
       setError(null);
     } catch (err) {
       setError(err.message);
