@@ -6,7 +6,7 @@ const { Op } = require("sequelize");
 // Get all products with optional filters
 router.get("/", async (req, res) => {
   try {
-    const { search, category_id, lowStock, supplier_id } = req.query;
+    const { search, category, lowStock, supplier_id } = req.query;
 
     let whereClause = {};
 
@@ -14,8 +14,8 @@ router.get("/", async (req, res) => {
       whereClause.name = { [Op.like]: `%${search}%` };
     }
 
-    if (category_id) {
-      whereClause.category_id = category_id;
+    if (category) {
+      whereClause["$category.name$"] = category;
     }
 
     if (lowStock === "true") {

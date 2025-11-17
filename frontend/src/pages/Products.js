@@ -41,6 +41,7 @@ const ProductFormModal = ({
         supplier_id:
           suppliers.length > 0 ? String(suppliers[0].supplier_id) : "",
         ...product,
+        category: product?.category?.name || "",
         supplier_id: product?.supplier_id
           ? String(product.supplier_id)
           : suppliers.length > 0
@@ -147,9 +148,9 @@ const ProductFormModal = ({
               style={{ width: "100%", padding: "8px" }}
             >
               <option value="">-- Select Category --</option>
-              {categories.map((cat, index) => (
-                <option key={index} value={cat}>
-                  {cat}
+              {categories.map((cat) => (
+                <option key={cat.category_id} value={cat.name}>
+                  {cat.name}
                 </option>
               ))}
             </select>
@@ -386,9 +387,9 @@ const Products = () => {
         />
         <select value={category} onChange={(e) => setCategory(e.target.value)}>
           <option value="">All Categories</option>
-          {categories.map((cat, index) => (
-            <option key={index} value={cat}>
-              {cat}
+          {categories.map((cat) => (
+            <option key={cat.category_id} value={cat.name}>
+              {cat.name}
             </option>
           ))}
         </select>
@@ -435,7 +436,7 @@ const Products = () => {
                   {p.description || "N/A"}
                 </td>{" "}
                 {/* Display description */}
-                <td>{p.category}</td>
+                <td>{p.category?.name || "N/A"}</td>
                 <td>{formatCurrency(p.unit_price)}</td>
                 <td>{p.stock_quantity}</td>
                 <td>{p.reorder_level}</td>

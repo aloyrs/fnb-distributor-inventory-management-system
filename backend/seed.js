@@ -7,6 +7,7 @@ const {
   SupplierPurchaseItem,
   CustomerOrder,
   CustomerOrderItem,
+  ProductCategory,
 } = require("./models");
 
 const PRODUCT_SELLING_PRICES = [
@@ -110,6 +111,26 @@ const seedDatabase = async () => {
     ];
     const suppliers = await createMany(Supplier, supplierSpecs);
     console.log(`Created ${suppliers.length} suppliers`);
+
+    // --- Product Categories ---
+    const categories = await ProductCategory.bulkCreate([
+      { name: "Grains" },
+      { name: "Oils" },
+      { name: "Dairy" },
+      { name: "Beverages" },
+      { name: "Canned Goods" },
+      { name: "Condiments" },
+      { name: "Meat" },
+      { name: "Produce" },
+      { name: "Frozen" },
+    ]);
+    console.log(`Created ${categories.length} categories`);
+
+    // Helper to find category ID by name
+    const categoryMap = categories.reduce((acc, cat) => {
+      acc[cat.name] = cat.category_id;
+      return acc;
+    }, {});
 
     // --- Products
     const productSpecs = [
@@ -268,7 +289,7 @@ const seedDatabase = async () => {
     const productCreateSpecs = productSpecs.map((p) => ({
       name: p.name,
       description: p.description,
-      category: p.category,
+      category_id: categoryMap[p.category],
       unit: p.unit,
       unit_price: p.unit_price,
       stock_quantity: p.stock_quantity,

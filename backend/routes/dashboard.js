@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-const { Product, CustomerOrderItem, sequelize } = require("../models");
+const { Product, CustomerOrderItem, CustomerOrder, ProductCategory, sequelize } = require("../models");
 const { Op } = require("sequelize");
 
 // Get critically low stock products (stock < 100)
@@ -18,8 +18,13 @@ router.get("/low-stock-alerts", async (req, res) => {
         "stock_quantity",
         "reorder_level",
         "unit_price",
-        "category",
+        [sequelize.col("category.name"), "category"],
       ],
+      include: [{
+        model: ProductCategory,
+        as: "category",
+        attributes: []
+      }],
       order: [["stock_quantity", "ASC"]],
       limit: 20,
     });
@@ -45,7 +50,7 @@ router.get("/top-selling-products", async (req, res) => {
           "total_revenue",
         ],
         [sequelize.col("product.name"), "product_name"],
-        [sequelize.col("product.category"), "product_category"],
+        [sequelize.col("product.category.name"), "product_category"],
         [sequelize.col("product.unit_price"), "product_unit_price"],
       ],
       include: [
@@ -53,12 +58,17 @@ router.get("/top-selling-products", async (req, res) => {
           model: Product,
           as: "product",
           attributes: [],
+          include: [{
+            model: ProductCategory,
+            as: "category",
+            attributes: []
+          }]
         },
       ],
       group: [
         sequelize.col("CustomerOrderItem.product_id"),
         "product.name",
-        "product.category",
+        "product.category.name",
         "product.unit_price",
       ],
       order: [[sequelize.literal("total_sold"), "DESC"]],
@@ -102,7 +112,6 @@ router.get("/summary", async (req, res) => {
     const currentYear = new Date().getFullYear();
     const startOfYear = new Date(currentYear, 0, 1);
 
-    const { CustomerOrder } = require("../models");
     const ytdOrdersCount = await CustomerOrder.count({
       where: {
         order_date: {
@@ -176,20 +185,21 @@ router.get("/stock-distribution", async (req, res) => {
 router.get("/supply-risk-report", async (req, res) => {
   try {
     const supplyRiskReport = await sequelize.query(
-      `SELECT 
-        p.product_id,
-        p.name,
-        p.category,
-        p.unit_price,
-        p.stock_quantity,
-        COUNT(DISTINCT sp.supplier_id) as supplier_count
-      FROM Products p
-      LEFT JOIN SupplierPurchaseItems spi ON p.product_id = spi.product_id
-      LEFT JOIN SupplierPurchases sp ON spi.purchase_id = sp.purchase_id
-      GROUP BY p.product_id, p.name, p.category, p.unit_price, p.stock_quantity
-      ORDER BY supplier_count ASC, p.name`,
-      { type: sequelize.QueryTypes.SELECT }
-    );
+    `SELECT 
+      p.product_id,
+      p.name,
+      pc.name as category,
+      p.unit_price,
+      p.stock_quantity,
+      COUNT(DISTINCT sp.supplier_id) as supplier_count
+    FROM Products p
+    LEFT JOIN Product_Categories pc ON p.category_id = pc.category_id
+    LEFT JOIN SupplierPurchaseItems spi ON p.product_id = spi.product_id
+    LEFT JOIN SupplierPurchases sp ON spi.purchase_id = sp.purchase_id
+    GROUP BY p.product_id, p.name, pc.name, p.unit_price, p.stock_quantity
+    ORDER BY supplier_count ASC, p.name`,
+    { type: sequelize.QueryTypes.SELECT }
+  );
 
     res.json(supplyRiskReport);
   } catch (error) {
@@ -201,34 +211,35 @@ router.get("/supply-risk-report", async (req, res) => {
 router.get("/purchase-forecast", async (req, res) => {
   try {
     const purchaseForecast = await sequelize.query(
-      `SELECT 
-        p.product_id,
-        p.name,
-        p.category,
-        p.stock_quantity,
-        p.reorder_level,
-        COUNT(spi.item_id) as total_purchases,
-        AVG(spi.quantity) as avg_purchase_qty,
-        ROUND(AVG(spi.quantity), 0) as forecasted_monthly_qty,
-        MAX(sp.purchase_date) as last_purchase_date,
-        ROUND((julianday('now') - julianday(MAX(sp.purchase_date)))) as days_since_purchase,
-        ROUND(
-          (julianday(MAX(sp.purchase_date)) - julianday(MIN(sp.purchase_date))) / 
-          (COUNT(DISTINCT strftime('%Y-%m', sp.purchase_date)))
-        ) as avg_days_between_purchases,
-        CASE 
-          WHEN p.stock_quantity < p.reorder_level THEN 'URGENT'
-          WHEN p.stock_quantity < (p.reorder_level * 1.5) THEN 'SOON'
-          ELSE 'PLANNED'
-        END as purchase_priority,
-        ROUND(p.unit_price * ROUND(AVG(spi.quantity), 0), 2) as estimated_monthly_cost
-      FROM Products p
-      LEFT JOIN SupplierPurchaseItems spi ON p.product_id = spi.product_id
-      LEFT JOIN SupplierPurchases sp ON spi.purchase_id = sp.purchase_id AND sp.status = 'completed'
-      GROUP BY p.product_id, p.name, p.category, p.stock_quantity, p.reorder_level, p.unit_price
-      ORDER BY purchase_priority DESC, last_purchase_date ASC`,
-      { type: sequelize.QueryTypes.SELECT }
-    );
+    `SELECT 
+      p.product_id,
+      p.name,
+      pc.name as category,
+      p.stock_quantity,
+      p.reorder_level,
+      COUNT(spi.item_id) as total_purchases,
+      AVG(spi.quantity) as avg_purchase_qty,
+      ROUND(AVG(spi.quantity), 0) as forecasted_monthly_qty,
+      MAX(sp.purchase_date) as last_purchase_date,
+      ROUND((julianday('now') - julianday(MAX(sp.purchase_date)))) as days_since_purchase,
+      ROUND(
+        (julianday(MAX(sp.purchase_date)) - julianday(MIN(sp.purchase_date))) / 
+        (COUNT(DISTINCT strftime('%Y-%m', sp.purchase_date)))
+      ) as avg_days_between_purchases,
+      CASE 
+        WHEN p.stock_quantity < p.reorder_level THEN 'URGENT'
+        WHEN p.stock_quantity < (p.reorder_level * 1.5) THEN 'SOON'
+        ELSE 'PLANNED'
+      END as purchase_priority,
+      ROUND(p.unit_price * ROUND(AVG(spi.quantity), 0), 2) as estimated_monthly_cost
+    FROM Products p
+    LEFT JOIN Product_Categories pc ON p.category_id = pc.category_id
+    LEFT JOIN SupplierPurchaseItems spi ON p.product_id = spi.product_id
+    LEFT JOIN SupplierPurchases sp ON spi.purchase_id = sp.purchase_id AND sp.status = 'completed'
+    GROUP BY p.product_id, p.name, pc.name, p.stock_quantity, p.reorder_level, p.unit_price
+    ORDER BY purchase_priority DESC, last_purchase_date ASC`,
+    { type: sequelize.QueryTypes.SELECT }
+  );
 
     res.json(purchaseForecast);
   } catch (error) {
