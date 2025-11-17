@@ -6,6 +6,7 @@ const SupplierPurchaseItem = require("./SupplierPurchaseItem");
 const Customer = require("./Customer");
 const CustomerOrder = require("./CustomerOrder");
 const CustomerOrderItem = require("./CustomerOrderItem");
+const ProductCategory = require("./ProductCategory");
 
 // Define relationships
 
@@ -86,6 +87,16 @@ CustomerOrderItem.belongsTo(Product, {
   as: "product",
 });
 
+ProductCategory.hasMany(Product, {
+  foreignKey: "category_id",
+  as: "products",
+});
+
+Product.belongsTo(ProductCategory, {
+  foreignKey: "category_id",
+  as: "category",
+});
+
 module.exports = {
   sequelize,
   Product,
@@ -95,4 +106,5 @@ module.exports = {
   Customer,
   CustomerOrder,
   CustomerOrderItem,
+  ProductCategory,
 };

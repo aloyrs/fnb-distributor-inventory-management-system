@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const { Product, Supplier, sequelize } = require("../models");
+const { Product, Supplier, ProductCategory, sequelize } = require("../models");
 const { Op } = require("sequelize");
 
 // Get all products with optional filters
 router.get("/", async (req, res) => {
   try {
-    const { search, category, lowStock, supplier_id } = req.query;
+    const { search, category_id, lowStock, supplier_id } = req.query;
 
     let whereClause = {};
 
@@ -14,8 +14,8 @@ router.get("/", async (req, res) => {
       whereClause.name = { [Op.like]: `%${search}%` };
     }
 
-    if (category) {
-      whereClause.category = category;
+    if (category_id) {
+      whereClause.category_id = category_id;
     }
 
     if (lowStock === "true") {
@@ -34,6 +34,11 @@ router.get("/", async (req, res) => {
           as: "supplier",
           attributes: ["supplier_id", "name"],
         },
+        {
+          model: ProductCategory,
+          as: "category",
+          attributes: ["category_id", "name"]
+        }
       ],
       order: [["name", "ASC"]],
     });
@@ -53,6 +58,11 @@ router.get("/:id", async (req, res) => {
           model: Supplier,
           as: "supplier",
         },
+        {
+          model: ProductCategory,
+          as: "category",
+          attributes: ["category_id", "name"]
+        }
       ],
     });
 
@@ -135,17 +145,12 @@ router.get("/alerts/low-stock", async (req, res) => {
 // Get product categories
 router.get("/meta/categories", async (req, res) => {
   try {
-    const categories = await Product.findAll({
-      attributes: [
-        [sequelize.fn("DISTINCT", sequelize.col("category")), "category"],
-      ],
-      where: {
-        category: { [Op.ne]: null },
-      },
-      raw: true,
+    const categories = await ProductCategory.findAll({
+      attributes: ["category_id", "name", "description"],
+      order: [["name", "ASC"]],
     });
 
-    res.json(categories.map((c) => c.category));
+    res.json(categories);
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

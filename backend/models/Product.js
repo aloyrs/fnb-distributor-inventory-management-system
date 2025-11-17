@@ -20,10 +20,14 @@ const Product = sequelize.define(
       type: DataTypes.TEXT,
       allowNull: true,
     },
-    category: {
-      type: DataTypes.STRING(100),
-      allowNull: true,
-    },
+    category_id: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+          model: "Product_Categories",
+          key: "category_id",
+        },
+      },
     unit: {
       type: DataTypes.STRING(50),
       allowNull: false,
