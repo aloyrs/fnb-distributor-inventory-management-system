@@ -133,13 +133,13 @@ const PurchaseDetails = () => {
 
     const [editData, setEditData] = useState({
       quantity: item.quantity,
-      unit_cost: item.unit_cost,
+      unit_price: item.unit_price,
     });
 
     const handleSave = () => {
       handleUpdateItem(item.item_id, {
         quantity: parseFloat(editData.quantity),
-        unit_cost: parseFloat(editData.unit_cost),
+        unit_price: parseFloat(editData.unit_price),
       });
     };
 
@@ -165,16 +165,16 @@ const PurchaseDetails = () => {
           {isEditing ? (
             <input
               type="number"
-              value={editData.unit_cost}
+              value={editData.unit_price}
               onChange={(e) =>
-                setEditData({ ...editData, unit_cost: e.target.value })
+                setEditData({ ...editData, unit_price: e.target.value })
               }
               min="0.01"
               step="0.01"
               style={{ width: "100px" }}
             />
           ) : (
-            formatCurrency(item.unit_cost)
+            formatCurrency(item.unit_price)
           )}
         </td>
         <td>{formatCurrency(item.subtotal)}</td>
@@ -217,7 +217,7 @@ const PurchaseDetails = () => {
     const [localNewItem, setLocalNewItem] = useState({
       product_id: "",
       quantity: "1", // Initialize as string for smoother input
-      unit_cost: "0.00", // Initialize as string for smoother input
+      unit_price: "0.00", // Initialize as string for smoother input
     });
 
     // Reset local state when the modal opens/closes
@@ -226,7 +226,7 @@ const PurchaseDetails = () => {
         setLocalNewItem({
           product_id: "",
           quantity: "1",
-          unit_cost: "0.00",
+          unit_price: "0.00",
         });
       }
     }, [isOpen]);
@@ -237,7 +237,7 @@ const PurchaseDetails = () => {
     const handleModalSubmit = (e) => {
       e.preventDefault();
 
-      const { product_id, quantity, unit_cost } = localNewItem;
+      const { product_id, quantity, unit_price } = localNewItem;
 
       // Ensure product is selected (though 'required' should handle this)
       if (!product_id) {
@@ -247,7 +247,7 @@ const PurchaseDetails = () => {
 
       // Parse and validate numbers here before calling the API handler
       const parsedQuantity = parseInt(quantity, 10);
-      const parsedUnitCost = parseFloat(unit_cost);
+      const parsedUnitCost = parseFloat(unit_price);
 
       if (isNaN(parsedQuantity) || parsedQuantity < 1) {
         alert("Quantity must be a number greater than 0.");
@@ -262,7 +262,7 @@ const PurchaseDetails = () => {
       handleCreateItem({
         product_id: product_id,
         quantity: parsedQuantity,
-        unit_cost: parsedUnitCost,
+        unit_price: parsedUnitCost,
       });
 
       // The main handler closes the modal on success, so no need to call onClose here
@@ -344,11 +344,11 @@ const PurchaseDetails = () => {
               <input
                 type="number"
                 placeholder="Unit Cost"
-                value={localNewItem.unit_cost}
+                value={localNewItem.unit_price}
                 onChange={(e) =>
                   setLocalNewItem({
                     ...localNewItem,
-                    unit_cost: e.target.value,
+                    unit_price: e.target.value,
                   })
                 }
                 min="0.01"

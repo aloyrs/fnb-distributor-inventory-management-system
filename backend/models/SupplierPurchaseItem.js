@@ -32,7 +32,7 @@ const SupplierPurchaseItem = sequelize.define(
         min: 1,
       },
     },
-    unit_cost: {
+    unit_price: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false,
       validate: {

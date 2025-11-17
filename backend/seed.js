@@ -564,13 +564,13 @@ const seedDatabase = async () => {
     for (const spec of purchaseItemSpecs) {
       const purchase = purchases[spec.purchaseIndex];
       const pIndex = spec.productIndex;
-      const unit_cost = getPurchaseCost(pIndex);
-      const subtotal = parseFloat((unit_cost * spec.quantity).toFixed(2));
+      const unit_price = getPurchaseCost(pIndex);
+      const subtotal = parseFloat((unit_price * spec.quantity).toFixed(2));
       await SupplierPurchaseItem.create({
         purchase_id: purchase.purchase_id,
         product_id: products[pIndex].product_id,
         quantity: spec.quantity,
-        unit_cost,
+        unit_price,
         subtotal,
       });
       purchaseTotals[spec.purchaseIndex] += subtotal;

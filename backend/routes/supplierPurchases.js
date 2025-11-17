@@ -115,7 +115,7 @@ router.post("/", async (req, res) => {
     // Create purchase items and update stock
     if (items && items.length > 0) {
       for (const item of items) {
-        const subtotal = item.quantity * item.unit_cost;
+        const subtotal = item.quantity * item.unit_price;
         totalAmount += subtotal;
 
         await SupplierPurchaseItem.create(
@@ -123,7 +123,7 @@ router.post("/", async (req, res) => {
             purchase_id: purchase.purchase_id,
             product_id: item.product_id,
             quantity: item.quantity,
-            unit_cost: item.unit_cost,
+            unit_price: item.unit_price,
             subtotal,
           },
           { transaction: t }
@@ -234,15 +234,15 @@ router.post("/:id/items", async (req, res) => {
       return res.status(404).json({ error: "Purchase not found" });
     }
 
-    const { product_id, quantity, unit_cost } = req.body;
-    const subtotal = quantity * unit_cost;
+    const { product_id, quantity, unit_price } = req.body;
+    const subtotal = quantity * unit_price;
 
     const item = await SupplierPurchaseItem.create(
       {
         purchase_id: req.params.id,
         product_id,
         quantity,
-        unit_cost,
+        unit_price,
         subtotal,
       },
       { transaction: t }
@@ -289,13 +289,13 @@ router.put("/:purchaseId/items/:itemId", async (req, res) => {
     const oldQuantity = item.quantity;
     const oldSubtotal = parseFloat(item.subtotal);
 
-    const { quantity, unit_cost } = req.body;
-    const newSubtotal = quantity * unit_cost;
+    const { quantity, unit_price } = req.body;
+    const newSubtotal = quantity * unit_price;
 
     await item.update(
       {
         quantity,
-        unit_cost,
+        unit_price,
         subtotal: newSubtotal,
       },
       { transaction: t }
