@@ -38,6 +38,8 @@ export const deleteCustomer = (id) => api.delete(`/customers/${id}`);
 export const getCustomerOrders = (filters) =>
   api.get("/customer-orders", { params: filters });
 
+export const createOrder = (data) => api.post("/customer-orders", data);
+
 // --- Customer Order Items Endpoints
 /**
  * Fetches the details of a single Customer Order, including its items.
