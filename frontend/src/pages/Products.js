@@ -267,7 +267,8 @@ const Products = () => {
 
     try {
       const res = await getProducts(filters);
-      setProducts(res.data);
+      const sortedData = res.data.sort((a, b) => a.product_id - b.product_id);
+      setProducts(sortedData);
     } catch (err) {
       console.error("Failed to load products", err);
       // alert("Failed to load products."); // Disabled to avoid annoyance

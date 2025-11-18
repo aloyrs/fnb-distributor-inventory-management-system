@@ -31,6 +31,9 @@ export const getCustomers = (filters) =>
 
 export const createCustomer = (customerData) => api.post("/customers", customerData);
 
+export const updateCustomer = (id, data) => api.put(`/customers/${id}`, data);
+export const deleteCustomer = (id) => api.delete(`/customers/${id}`);
+
 // --- Customer Order Endpoints (customerOrders.js)
 export const getCustomerOrders = (filters) =>
   api.get("/customer-orders", { params: filters });
@@ -60,6 +63,11 @@ export const getOrderStatsMonthlyRevenue = (year) =>
 export const getSuppliers = (filters) =>
   api.get("/suppliers", { params: filters });
 export const getSupplierRegions = () => api.get("/suppliers/meta/regions");
+
+export const createSupplier = (data) => api.post("/suppliers", data);
+
+export const updateSupplier = (id, data) => api.put(`/suppliers/${id}`, data);
+export const deleteSupplier = (id) => api.delete(`/suppliers/${id}`);
 
 // --- Supplier Purchase Endpoints (supplierPurchases.js)
 export const getSupplierPurchases = (filters) =>
