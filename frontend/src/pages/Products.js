@@ -1,3 +1,4 @@
+// src/pages/Products.js
 import React, { useState, useEffect } from "react";
 import {
   getProducts,
@@ -80,41 +81,15 @@ const ProductFormModal = ({
   };
 
   return (
-    <div
-      className="modal-overlay"
-      style={{
-        position: "fixed",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: "rgba(0, 0, 0, 0.5)",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        zIndex: 1000,
-      }}
-      onClick={onClose}
-    >
-      <div
-        className="modal-content"
-        style={{
-          backgroundColor: "white",
-          padding: "30px",
-          borderRadius: "8px",
-          width: "500px",
-          boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="modal-overlay">
+      <div className="modal-content">
         <h3>
           {isEditing
             ? `✏️ Edit Product ID: ${product.product_id}`
-            : "➕ Add New Product"}
+            : "+ Add New Product"}
         </h3>
-        <form onSubmit={handleSubmit} className="product-form">
-          {/* Name */}
-          <div style={{ marginBottom: "10px" }}>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
             <label>Name:</label>
             <input
               type="text"
@@ -122,30 +97,25 @@ const ProductFormModal = ({
               value={formData.name}
               onChange={handleChange}
               required
-              style={{ width: "100%", padding: "8px" }}
             />
           </div>
 
-          {/* Description */}
-          <div style={{ marginBottom: "10px" }}>
+          <div className="form-group">
             <label>Description:</label>
             <textarea
               name="description"
               value={formData.description}
               onChange={handleChange}
-              style={{ width: "100%", padding: "8px", minHeight: "80px" }}
             />
           </div>
 
-          {/* Category */}
-          <div style={{ marginBottom: "10px" }}>
+          <div className="form-group">
             <label>Category:</label>
             <select
               name="category"
               value={formData.category}
               onChange={handleChange}
               required
-              style={{ width: "100%", padding: "8px" }}
             >
               <option value="">-- Select Category --</option>
               {categories.map((cat) => (
@@ -156,15 +126,13 @@ const ProductFormModal = ({
             </select>
           </div>
 
-          {/* Supplier */}
-          <div style={{ marginBottom: "10px" }}>
+          <div className="form-group">
             <label>Supplier:</label>
             <select
               name="supplier_id"
               value={formData.supplier_id}
               onChange={handleChange}
               required
-              style={{ width: "100%", padding: "8px" }}
             >
               <option value="">-- Select Supplier --</option>
               {suppliers.map((s) => (
@@ -175,8 +143,7 @@ const ProductFormModal = ({
             </select>
           </div>
 
-          {/* Unit Price */}
-          <div style={{ marginBottom: "10px" }}>
+          <div className="form-group">
             <label>Unit Price ($):</label>
             <input
               type="number"
@@ -186,12 +153,10 @@ const ProductFormModal = ({
               min="0.01"
               step="0.01"
               required
-              style={{ width: "100%", padding: "8px" }}
             />
           </div>
 
-          {/* Stock Quantity */}
-          <div style={{ marginBottom: "10px" }}>
+          <div className="form-group">
             <label>Stock Quantity:</label>
             <input
               type="number"
@@ -200,12 +165,10 @@ const ProductFormModal = ({
               onChange={handleChange}
               min="0"
               required
-              style={{ width: "100%", padding: "8px" }}
             />
           </div>
 
-          {/* Reorder Level */}
-          <div style={{ marginBottom: "20px" }}>
+          <div className="form-group">
             <label>Reorder Level:</label>
             <input
               type="number"
@@ -214,25 +177,18 @@ const ProductFormModal = ({
               onChange={handleChange}
               min="0"
               required
-              style={{ width: "100%", padding: "8px" }}
             />
           </div>
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              gap: "10px",
-            }}
-          >
+          <div className="modal-actions">
             <button
               type="button"
+              className="btn-secondary"
               onClick={onClose}
-              style={{ flexGrow: 1, padding: "10px" }}
             >
               Cancel
             </button>
-            <button type="submit" style={{ flexGrow: 1, padding: "10px" }}>
+            <button type="submit" className="btn-primary">
               {isEditing ? "Save Changes" : "Create Product"}
             </button>
           </div>
@@ -245,7 +201,7 @@ const ProductFormModal = ({
 const Products = () => {
   const [products, setProducts] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [suppliers, setSuppliers] = useState([]); // New state for suppliers
+  const [suppliers, setSuppliers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // State for CRUD Modal
@@ -271,30 +227,27 @@ const Products = () => {
       setProducts(sortedData);
     } catch (err) {
       console.error("Failed to load products", err);
-      // alert("Failed to load products."); // Disabled to avoid annoyance
     } finally {
       setLoading(false);
     }
   };
 
-  // Effect to load metadata (categories and suppliers)
   useEffect(() => {
     const loadMetadata = async () => {
       try {
         const [categoriesRes, suppliersRes] = await Promise.all([
           getProductCategories(),
-          getSuppliers({}), // Fetch all suppliers
+          getSuppliers({}),
         ]);
         setCategories(categoriesRes.data);
         setSuppliers(suppliersRes.data);
       } catch (err) {
-        console.error("Failed to load metadata (categories/suppliers)", err);
+        console.error("Failed to load metadata", err);
       }
     };
     loadMetadata();
   }, []);
 
-  // Effect to load products based on filters
   useEffect(() => {
     fetchProducts();
   }, [search, category, lowStock]);
@@ -321,16 +274,14 @@ const Products = () => {
   const handleCreateOrUpdateProduct = async (data) => {
     try {
       if (editingProduct) {
-        // Update existing product
         await updateProduct(editingProduct.product_id, data);
         alert("Product updated successfully!");
       } else {
-        // Create new product
         await createProduct(data);
         alert("Product created successfully!");
       }
       handleCloseModal();
-      fetchProducts(); // Refresh the list
+      fetchProducts();
     } catch (err) {
       console.error(
         `Failed to ${editingProduct ? "update" : "create"} product`,
@@ -344,23 +295,16 @@ const Products = () => {
   };
 
   const handleDeleteProduct = async (productId, productName) => {
-    if (
-      !window.confirm(
-        `Are you sure you want to delete product: ${productName}?`
-      )
-    ) {
+    if (!window.confirm(`Are you sure you want to delete product: ${productName}?`)) {
       return;
     }
     try {
       await deleteProduct(productId);
       alert("Product deleted successfully!");
-      fetchProducts(); // Refresh the list
+      fetchProducts();
     } catch (err) {
       console.error("Failed to delete product", err);
-      alert(
-        "Failed to delete product: " +
-          (err.response?.data?.error || err.message)
-      );
+      alert("Failed to delete product: " + (err.response?.data?.error || err.message));
     }
   };
 
@@ -373,36 +317,40 @@ const Products = () => {
     <div>
       <h2>📦 Product Inventory</h2>
 
-      <div className="controls" style={{ marginBottom: "20px" }}>
-        <button onClick={handleOpenCreateModal} className="add-product-btn">
-          ➕ Add New Product
+      {/* 👇 Updated Toolbar Layout */}
+      <div className="toolbar">
+        <form className="filter-bar" onSubmit={handleSearch}>
+          <div style={{ display: 'flex', gap: '10px', flexGrow: 1 }}>
+            <input
+              type="text"
+              placeholder="Search by name..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+            />
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              <option value="">All Categories</option>
+              {categories.map((cat) => (
+                <option key={cat.category_id} value={cat.name}>
+                  {cat.name}
+                </option>
+              ))}
+            </select>
+            <label style={{ display: 'flex', alignItems: 'center', whiteSpace: 'nowrap', marginLeft: '10px' }}>
+              <input
+                type="checkbox"
+                checked={lowStock}
+                onChange={(e) => setLowStock(e.target.checked)}
+                style={{ width: 'auto', marginRight: '5px' }}
+              />
+              Low Stock (&lt; 100)
+            </label>
+          </div>
+        </form>
+        {/* 👇 Button moved here */}
+        <button onClick={handleOpenCreateModal} className="add-button">
+          + Add New Product
         </button>
       </div>
-
-      <form className="filter-bar" onSubmit={handleSearch}>
-        <input
-          type="text"
-          placeholder="Search by name..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-        <select value={category} onChange={(e) => setCategory(e.target.value)}>
-          <option value="">All Categories</option>
-          {categories.map((cat) => (
-            <option key={cat.category_id} value={cat.name}>
-              {cat.name}
-            </option>
-          ))}
-        </select>
-        <label>
-          <input
-            type="checkbox"
-            checked={lowStock}
-            onChange={(e) => setLowStock(e.target.checked)}
-          />
-          Low Stock (&lt; 100)
-        </label>
-      </form>
 
       {loading ? (
         <div>Loading Products...</div>
@@ -441,16 +389,16 @@ const Products = () => {
                 <td>{p.stock_quantity}</td>
                 <td>{p.reorder_level}</td>
                 <td>{p.supplier?.name || "N/A"}</td>
-                <td className="actions">
+                <td className="actions-cell">
                   <button
                     onClick={() => handleOpenEditModal(p)}
-                    className="edit-btn"
+                    style={{ marginRight: "5px", padding: "5px 10px", backgroundColor: "#f39c12", border: "none", borderRadius: "4px", color: "white", cursor: "pointer" }}
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDeleteProduct(p.product_id, p.name)}
-                    className="delete-btn"
+                    style={{ padding: "5px 10px", backgroundColor: "#e74c3c", border: "none", borderRadius: "4px", color: "white", cursor: "pointer" }}
                   >
                     Delete
                   </button>
@@ -466,7 +414,7 @@ const Products = () => {
         onClose={handleCloseModal}
         product={editingProduct}
         categories={categories}
-        suppliers={suppliers} // Pass suppliers list
+        suppliers={suppliers}
         onSubmit={handleCreateOrUpdateProduct}
       />
     </div>

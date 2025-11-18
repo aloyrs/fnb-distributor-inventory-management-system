@@ -1,6 +1,5 @@
 // src/pages/Customers.js
 import React, { useState, useEffect } from "react";
-// 👇 Import update and delete functions
 import { getCustomers, createCustomer, updateCustomer, deleteCustomer } from "../api/inventoryApi";
 
 const Customers = () => {

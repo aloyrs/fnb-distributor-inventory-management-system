@@ -766,21 +766,21 @@ textarea {
 }
 
 .badge.increasing {
-  background-color: rgba(39, 174, 96, 0.3);
-  border-color: rgba(39, 174, 96, 0.6);
-  color: #1e8449;
+  background-color: #2ecc71; /* Bright Green */
+  border: 1px solid #27ae60;
+  color: white;
 }
 
 .badge.declining {
-  background-color: rgba(231, 76, 60, 0.3);
-  border-color: rgba(231, 76, 60, 0.6);
-  color: #a93226;
+  background-color: #e74c3c; /* Bright Red */
+  border: 1px solid #c0392b;
+  color: white;
 }
 
 .badge.stable {
-  background-color: rgba(149, 165, 166, 0.3);
-  border-color: rgba(149, 165, 166, 0.6);
-  color: #52728e;
+  background-color: #95a5a6; /* Grey */
+  border: 1px solid #7f8c8d;
+  color: white;
 }
 
 .trend-section {

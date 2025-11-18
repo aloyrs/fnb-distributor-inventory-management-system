@@ -1,6 +1,5 @@
 // src/pages/Suppliers.js
 import React, { useState, useEffect } from "react";
-// 👇 Import update and delete functions
 import { getSuppliers, getSupplierRegions, createSupplier, updateSupplier, deleteSupplier } from "../api/inventoryApi";
 
 const Suppliers = () => {

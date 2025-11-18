@@ -131,18 +131,20 @@ const SupplyRisk = () => {
       </div>
 
       {/* Filter Bar */}
-      <div className="filter-bar">
-        <label>Filter by Risk Level: </label>
-        <select
-          value={filterRisk}
-          onChange={(e) => setFilterRisk(e.target.value)}
-        >
-          <option value="all">All Products</option>
-          <option value="critical">Critical Risk</option>
-          <option value="high">High Risk</option>
-          <option value="medium">Medium Risk</option>
-          <option value="low">Low Risk</option>
-        </select>
+      <div className="control-bar">
+        <div className="filter-section">
+          <label>Filter by Risk Level: </label>
+          <select
+            value={filterRisk}
+            onChange={(e) => setFilterRisk(e.target.value)}
+          >
+            <option value="all">All Products</option>
+            <option value="critical">Critical Risk</option>
+            <option value="high">High Risk</option>
+            <option value="medium">Medium Risk</option>
+            <option value="low">Low Risk</option>
+          </select>
+        </div>
       </div>
 
       {/* Supply Risk Table */}
