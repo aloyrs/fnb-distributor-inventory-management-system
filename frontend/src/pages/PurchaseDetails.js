@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   getSupplierPurchaseDetails,
@@ -20,7 +20,7 @@ const PurchaseDetails = () => {
   const [editingItemId, setEditingItemId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchPurchaseDetails = async () => {
+  const fetchPurchaseDetails = useCallback(async () => {
     if (!purchaseId) {
       setError("No Purchase ID provided.");
       setLoading(false);
@@ -40,7 +40,7 @@ const PurchaseDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [purchaseId]);
 
   const fetchProducts = async () => {
     try {
@@ -54,7 +54,7 @@ const PurchaseDetails = () => {
   useEffect(() => {
     fetchPurchaseDetails();
     fetchProducts();
-  }, [purchaseId]);
+  }, [fetchPurchaseDetails]);
 
   // Modified handleCreateItem to accept the item data directly
   const handleCreateItem = async (newItemData) => {

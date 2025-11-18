@@ -1,5 +1,5 @@
 // src/pages/OrderDetails.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useParams, Link } from "react-router-dom";
 import {
   getCustomerOrderDetails,
@@ -20,7 +20,7 @@ const OrderDetails = () => {
   const [editingItemId, setEditingItemId] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const fetchOrderDetails = async () => {
+  const fetchOrderDetails = useCallback(async () => {
     if (!orderId) {
       setError("No Order ID provided.");
       setLoading(false);
@@ -38,7 +38,7 @@ const OrderDetails = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [orderId]);
 
   const fetchProducts = async () => {
     try {
@@ -52,7 +52,7 @@ const OrderDetails = () => {
   useEffect(() => {
     fetchOrderDetails();
     fetchProducts();
-  }, [orderId]);
+  }, [fetchOrderDetails]);
 
   const handleCreateItem = async (newItemData) => {
     try {
@@ -203,10 +203,6 @@ const OrderDetails = () => {
       quantity: "1",
       unit_price: "", // Will be auto-populated
     });
-
-    const selectedProduct = products.find(
-      (p) => String(p.product_id) === localNewItem.product_id
-    );
 
     useEffect(() => {
       if (isOpen) {
