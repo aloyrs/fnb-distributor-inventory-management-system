@@ -21,23 +21,21 @@ const Customers = () => {
 
   const customerStatuses = ["active", "inactive"]; // Example statuses
 
-  useEffect(() => {
-    const loadCustomers = async () => {
-      setLoading(true);
-      const filters = {
-        search: search,
-        status: status,
-      };
+  const loadCustomers = async () => {
+    setLoading(true);
+    try {
+      // Note: pass the current filters state here
+      const res = await getCustomers({ search, status });
+      setCustomers(res.data);
+    } catch (err) {
+      console.error("Failed to load customers", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-      try {
-        const res = await getCustomers(filters);
-        setCustomers(res.data);
-      } catch (err) {
-        console.error("Failed to load customers", err);
-      } finally {
-        setLoading(false);
-      }
-    };
+  // useEffect just calls the function above
+  useEffect(() => {
     loadCustomers();
   }, [search, status]);
 
@@ -62,7 +60,7 @@ const Customers = () => {
 
     try {
       // Call the API function to create the customer
-      await addCustomer(newCustomer);
+      await createCustomer(newCustomer);
       
       // Close modal and reset form
       setIsModalOpen(false);

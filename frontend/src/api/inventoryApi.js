@@ -29,10 +29,7 @@ export const deleteProduct = (id) => api.delete(`/products/${id}`);
 export const getCustomers = (filters) =>
   api.get("/customers", { params: filters });
 
-export const addCustomer = (customerData) => {
-  // This sends a POST request to /api/customers
-  return axios.post(`${API_URL}/customers`, customerData);
-};
+export const createCustomer = (customerData) => api.post("/customers", customerData);
 
 // --- Customer Order Endpoints (customerOrders.js)
 export const getCustomerOrders = (filters) =>
