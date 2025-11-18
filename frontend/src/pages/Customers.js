@@ -152,7 +152,7 @@ const Customers = () => {
               <th>Phone</th>
               <th>Status</th>
               <th>Recent Orders</th>
-              <th>Actions</th> {/* New Column */}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -165,7 +165,6 @@ const Customers = () => {
                 <td>{c.status}</td>
                 <td>{c.orders ? c.orders.length : 0}</td>
                 <td className="actions-cell">
-                  {/* Edit Button */}
                   <button 
                     className="edit-btn" 
                     onClick={() => handleOpenEdit(c)}
@@ -173,7 +172,6 @@ const Customers = () => {
                   >
                     Edit
                   </button>
-                  {/* Delete Button */}
                   <button 
                     className="delete-btn" 
                     onClick={() => handleDelete(c.customer_id, c.name)}
@@ -188,7 +186,6 @@ const Customers = () => {
         </table>
       )}
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">

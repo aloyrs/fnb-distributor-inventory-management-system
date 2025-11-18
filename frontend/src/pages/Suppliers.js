@@ -165,7 +165,7 @@ const Suppliers = () => {
               <th>Phone</th>
               <th>Region</th> 
               <th>Status</th>
-              <th>Actions</th> {/* New Column */}
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -198,7 +198,6 @@ const Suppliers = () => {
         </table>
       )}
 
-      {/* Modal */}
       {isModalOpen && (
         <div className="modal-overlay">
           <div className="modal-content">
