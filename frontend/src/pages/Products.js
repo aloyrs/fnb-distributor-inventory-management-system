@@ -1,5 +1,5 @@
 // src/pages/Products.js
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   getProducts,
   getProductCategories,
@@ -18,36 +18,46 @@ const ProductFormModal = ({
   onSubmit,
 }) => {
   const isEditing = !!product;
+
   const [formData, setFormData] = useState({
     name: "",
     description: "",
-    category: "",
     unit_price: "",
     stock_quantity: "",
     reorder_level: "",
-    supplier_id: "",
     ...product,
+    // Ensure we use the ID for the initial state
+    category_id: product?.category_id ? String(product.category_id) : "",
     supplier_id: product?.supplier_id ? String(product.supplier_id) : "",
   });
 
   useEffect(() => {
     if (isOpen) {
+      // Logic to determine initial IDs
+      let initialSupplierId = "";
+      if (product?.supplier_id) {
+        initialSupplierId = String(product.supplier_id);
+      } else if (suppliers.length > 0) {
+        initialSupplierId = String(suppliers[0].supplier_id);
+      }
+
+      let initialCategoryId = "";
+      if (product?.category_id) {
+        initialCategoryId = String(product.category_id);
+      } else if (product?.category?.category_id) {
+        // Fallback if category_id isn't on the root object but inside the nested object
+        initialCategoryId = String(product.category.category_id);
+      }
+
       setFormData({
-        name: "",
-        description: "",
-        category: "",
-        unit_price: "",
-        stock_quantity: "",
-        reorder_level: "",
-        supplier_id:
-          suppliers.length > 0 ? String(suppliers[0].supplier_id) : "",
+        name: product?.name || "",
+        description: product?.description || "",
+        unit_price: product?.unit_price || "",
+        stock_quantity: product?.stock_quantity || "",
+        reorder_level: product?.reorder_level || "",
         ...product,
-        category: product?.category?.name || "",
-        supplier_id: product?.supplier_id
-          ? String(product.supplier_id)
-          : suppliers.length > 0
-          ? String(suppliers[0].supplier_id)
-          : "",
+        category_id: initialCategoryId,
+        supplier_id: initialSupplierId,
       });
     }
   }, [isOpen, product, suppliers]);
@@ -69,6 +79,11 @@ const ProductFormModal = ({
       alert("Please select a supplier.");
       return;
     }
+    
+    if (!formData.category_id) {
+      alert("Please select a category.");
+      return;
+    }
 
     const submittedData = {
       ...formData,
@@ -76,7 +91,12 @@ const ProductFormModal = ({
       stock_quantity: parseInt(formData.stock_quantity, 10) || 0,
       reorder_level: parseInt(formData.reorder_level, 10) || 0,
       supplier_id: parseInt(formData.supplier_id, 10),
+      category_id: parseInt(formData.category_id, 10),
     };
+    
+    // Remove the old 'category' string property if it exists to avoid confusion
+    delete submittedData.category; 
+
     onSubmit(submittedData);
   };
 
@@ -112,14 +132,14 @@ const ProductFormModal = ({
           <div className="form-group">
             <label>Category:</label>
             <select
-              name="category"
-              value={formData.category}
+              name="category_id"
+              value={formData.category_id}
               onChange={handleChange}
               required
             >
               <option value="">-- Select Category --</option>
               {categories.map((cat) => (
-                <option key={cat.category_id} value={cat.name}>
+                <option key={cat.category_id} value={cat.category_id}>
                   {cat.name}
                 </option>
               ))}
@@ -213,7 +233,7 @@ const Products = () => {
   const [category, setCategory] = useState("");
   const [lowStock, setLowStock] = useState(false);
 
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     setLoading(true);
     const filters = {
       search: search,
@@ -230,7 +250,7 @@ const Products = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [search, category, lowStock]);
 
   useEffect(() => {
     const loadMetadata = async () => {
@@ -250,7 +270,7 @@ const Products = () => {
 
   useEffect(() => {
     fetchProducts();
-  }, [search, category, lowStock]);
+  }, [fetchProducts]);
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -317,7 +337,6 @@ const Products = () => {
     <div>
       <h2>📦 Product Inventory</h2>
 
-      {/* 👇 Updated Toolbar Layout */}
       <div className="toolbar">
         <form className="filter-bar" onSubmit={handleSearch}>
           <div style={{ display: 'flex', gap: '10px', flexGrow: 1 }}>
@@ -346,7 +365,6 @@ const Products = () => {
             </label>
           </div>
         </form>
-        {/* 👇 Button moved here */}
         <button onClick={handleOpenCreateModal} className="add-button">
           + Add New Product
         </button>
