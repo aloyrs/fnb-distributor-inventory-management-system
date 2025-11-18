@@ -75,6 +75,9 @@ export const deleteSupplier = (id) => api.delete(`/suppliers/${id}`);
 export const getSupplierPurchases = (filters) =>
   api.get("/supplier-purchases", { params: filters });
 
+export const createSupplierPurchase = (data) =>
+  api.post("/supplier-purchases", data);
+
 /**
  * Fetches the details of a single Supplier Purchase, including its items.
  * Corresponds to: GET /api/supplier-purchases/:purchaseId
