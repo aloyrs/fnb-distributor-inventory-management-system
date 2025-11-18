@@ -411,7 +411,7 @@ const Products = () => {
             <tr>
               <th>ID</th>
               <th>Name</th>
-              <th>Description</th> {/* New column */}
+              <th>Description</th>
               <th>Category</th>
               <th>Unit Price</th>
               <th>Stock</th>
@@ -434,8 +434,7 @@ const Products = () => {
                   }}
                 >
                   {p.description || "N/A"}
-                </td>{" "}
-                {/* Display description */}
+                </td>
                 <td>{p.category?.name || "N/A"}</td>
                 <td>{formatCurrency(p.unit_price)}</td>
                 <td>{p.stock_quantity}</td>

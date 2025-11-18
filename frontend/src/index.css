@@ -66,6 +66,27 @@ code {
   margin-top: 24px;
 }
 
+/* Button styles for Modals */
+.btn-primary {
+  background-color: #3498db; /* Bright Blue */
+  color: white;
+  border: none;
+}
+
+.btn-primary:hover {
+  background-color: #2980b9;
+}
+
+.btn-secondary {
+  background-color: #e0e0e0; /* Light Gray */
+  color: #333;
+  border: 1px solid #ccc;
+}
+
+.btn-secondary:hover {
+  background-color: #d6d6d6;
+}
+
 /* Add this to your existing toolbar/filter-bar styles */
 .toolbar {
   display: flex;

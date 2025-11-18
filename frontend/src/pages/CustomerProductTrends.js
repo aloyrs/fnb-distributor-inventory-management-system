@@ -148,23 +148,23 @@ const CustomerProductTrends = () => {
                         <div className="product-stats">
                           <div className="stat">
                             <label>Earlier Period:</label>
-                            <value>{product.earlier_qty} units</value>
+                            <span>{product.earlier_qty} units</span>
                           </div>
                           <div className="stat">
                             <label>Recent Period:</label>
-                            <value>{product.recent_qty} units</value>
+                            <span>{product.recent_qty} units</span>
                           </div>
                           <div className="stat">
                             <label>Change:</label>
-                            <value style={{ color: "#27ae60" }}>
+                            <span style={{ color: "#27ae60" }}>
                               +{product.qty_change} units
-                            </value>
+                            </span>
                           </div>
                           <div className="stat">
                             <label>Order Frequency:</label>
-                            <value>
+                            <span>
                               {product.earlier_orders} → {product.recent_orders} orders
-                            </value>
+                            </span>
                           </div>
                         </div>
                         <div className="action-hint">✅ Stock more of this</div>
@@ -193,23 +193,23 @@ const CustomerProductTrends = () => {
                         <div className="product-stats">
                           <div className="stat">
                             <label>Earlier Period:</label>
-                            <value>{product.earlier_qty} units</value>
+                            <span>{product.earlier_qty} units</span>
                           </div>
                           <div className="stat">
                             <label>Recent Period:</label>
-                            <value>{product.recent_qty} units</value>
+                            <span>{product.recent_qty} units</span>
                           </div>
                           <div className="stat">
                             <label>Change:</label>
-                            <value style={{ color: "#e74c3c" }}>
+                            <span style={{ color: "#e74c3c" }}>
                               {product.qty_change} units
-                            </value>
+                            </span>
                           </div>
                           <div className="stat">
                             <label>Order Frequency:</label>
-                            <value>
+                            <span>
                               {product.earlier_orders} → {product.recent_orders} orders
-                            </value>
+                            </span>
                           </div>
                         </div>
                         <div className="action-hint">⚠️ Check why declining</div>
@@ -234,15 +234,15 @@ const CustomerProductTrends = () => {
                         <div className="product-stats">
                           <div className="stat">
                             <label>Earlier Period:</label>
-                            <value>{product.earlier_qty} units</value>
+                            <span>{product.earlier_qty} units</span>
                           </div>
                           <div className="stat">
                             <label>Recent Period:</label>
-                            <value>{product.recent_qty} units</value>
+                            <span>{product.recent_qty} units</span>
                           </div>
                           <div className="stat">
                             <label>Orders:</label>
-                            <value>{product.recent_orders}</value>
+                            <span>{product.recent_orders}</span>
                           </div>
                         </div>
                       </div>

@@ -282,24 +282,24 @@ const PurchaseForecast = () => {
         <div className="stats-grid">
           <div className="stat-item">
             <label>Total Products in Forecast:</label>
-            <value>{forecastData.length}</value>
+            <span>{forecastData.length}</span>
           </div>
           <div className="stat-item">
             <label>Products Requiring Purchase:</label>
-            <value>{stats.urgent + stats.soon}</value>
+            <span>{stats.urgent + stats.soon}</span>
           </div>
           <div className="stat-item">
             <label>Total Planned Purchases:</label>
-            <value>{stats.planned}</value>
+            <span>{stats.planned}</span>
           </div>
           <div className="stat-item">
             <label>Average Purchase Frequency:</label>
-            <value>
+            <span>
               {(
                 forecastData.reduce((sum, item) => sum + (item.avg_days_between_purchases || 0), 0) /
                 forecastData.length
               ).toFixed(0)} days
-            </value>
+            </span>
           </div>
         </div>
       </div>
